@@ -1,0 +1,45 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<div class="text-center">
+  <h1>Enter Name of Film!</h1>
+</div>
+
+<br>
+
+<form action="/postexample" method="POST">
+  <div class="form-group">
+    <input name="text" class="form-control input-lg" type="text" placeholder="Enter name of film" required>
+  </div>
+  <input type="submit" class="btn btn-primary btn-lg btn-block" value="Submit">
+</form>
+
+<br>
+<hr>
+
+<div>
+  {% for post in posts %}
+    <h4 class="well"><strong>Actors: {{post.Actors}}</strong></h4>
+    <img class="well" src="{{post.Poster}}" alt="{{post.Poster}}"></img>
+        <a class="well" href="{{post.Poster}}">Click Here for Image for Film</a>
+    <h4 class="well"><strong>Awards: {{post.Awards}}</strong></h4>
+    <h4 class="well"><strong>Genre: {{post.Genre}}</strong></h4>
+    <h4 class="well"><strong>imdb ID: {{post.imdbID}}</strong></h4>
+    <h4 class="well"><strong>Year: {{post.Year}}</strong></h4>
+    <h4 class="well"><strong>Title: {{post.Title}}</strong></h4>
+    <h4 class="well"><strong>Director: {{post.Director}}</strong></h4>
+    <h4 class="well"><strong>Language: {{post.Language}}</strong></h4>
+    <h4 class="well"><strong>IMDB Rating: {{post.imdbRating}}</strong></h4>
+    <h4 class="well"><strong>Type: {{post.Type}}</strong></h4>
+    <h4 class="well"><strong>Writer: {{post.Writer}}</strong></h4>
+    <h4 class="well"><strong>Metascore: {{post.Metascore}}</strong></h4>
+    <h4 class="well"><strong>Country: {{post.Country}}</strong></h4>
+    <h4 class="well"><strong>Released: {{post.Released}}</strong></h4>
+    <h4 class="well"><strong>Runtime: {{post.Runtime}}</strong></h4>
+    <h4 class="well"><strong>Plot: {{post.Plot}}</strong></h4>
+    <h4 class="well"><strong>Rated: {{post.Rated}}</strong></h4>
+  {% endfor %}
+</div>
+
+{% endblock %}

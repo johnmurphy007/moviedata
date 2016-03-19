@@ -1,0 +1,33 @@
+wsgi:
+  restart: always
+  build: ./wsgi
+  links:
+    - mongo:mongo
+  environment:
+    - MODE=dev
+  expose:
+    - "8000"
+  volumes:
+    - $HOME/dockerfile/wsgi/static/:/usr/src/app/static
+  #command: /usr/local/bin/gunicorn -c gunicorn.py -w 2 -b :8000 app:app
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes:
+    - /www/static
+  volumes_from:
+    - wsgi
+  links:
+    - wsgi:wsgi
+    - mongo:mongo
+
+mongo:
+  image: mongo:3.0.4
+  command: mongod --quiet
+  ports:
+    - 27017:27017/tcp
+  #volumes:
+  #  - $HOME/dockerfile/mongo/:/data/db

@@ -1,0 +1,5 @@
+# requirements.txt   The below modules are loaded with Dockerfile onbuild command
+flask==0.10.1
+gunicorn==19.1.1
+requests==2.9.1
+pymongo==3.2.1
