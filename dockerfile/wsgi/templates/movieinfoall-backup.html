@@ -1,0 +1,69 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+
+<br>
+<hr>
+
+<!-- <div class="container" ng-controller="MovieDisplayController">
+  <div class="row">
+    <div class="col-xs-12">
+
+      <button ng-click="toggleDetails()" class="btn btn-xs btn-primary pull-right"
+            type="button">{{showDetails ? 'Hide Details':'Show Details'}}</button>
+
+<p ng-show="showDetails">Hi</p>
+</div>
+</div>
+</div> -->
+
+<div>
+  <table>
+    <thead>
+      <tr>
+    <!-- <td><h4><strong>ID</strong></h4></td> -->
+    <td><h4><strong>Title</strong></h4></td>
+    <td><h4><strong>IMDB Rating</strong></h4></td>
+    <td><h4><strong>Genre</strong></h4></td>
+    <td><h4><strong>Year</strong></h4></td>
+    <td><h4><strong>Runtime</strong></h4></td>
+    <!-- <td><h4><strong>Plot</strong></h4></td> -->
+    <td><h4><strong>Actors</strong></h4></td>
+    <td><h4><strong>Awards</strong></h4></td>
+    <td><h4><strong>imdb ID</strong></h4></td>
+    <td><h4><strong>Director</strong></h4></td>
+    <td><h4><strong>Language</strong></h4></td>
+    <td><h4><strong>Type</strong></h4></td>
+    <!-- <td><h4><strong>Writer</strong></h4></td> -->
+    <td><h4><strong>Metascore</strong></h4></td>
+    <td><h4><strong>Country</strong></h4></td>
+    <td><h4><strong>Released</strong></h4></td>
+    <td><h4><strong>Rated</strong></h4></td>
+  </tr>
+  <thead>
+  <tbody>
+  {% for post in posts %}
+  <tr>
+      <!-- <td><h4><strong>{{post._id}}</strong></h4></td> -->
+    <td><h4><strong>{{post.Title}}</strong></h4></td>
+    <td><h4><strong>{{post.imdbRating}}</strong></h4></td>
+    <td><h4><strong>{{post.Genre}}</strong></h4></td>
+    <td><h4><strong>{{post.Year}}</strong></h4></td>
+    <td><h4><strong>{{post.Runtime}}</strong></h4></td>
+    <!-- <td><h4><strong>{{post.Plot}}</strong></h4></td> -->
+    <td><h4><strong>{{post.Actors}}</strong></h4></td>
+    <td><h4><strong>{{post.Awards}}</strong></h4></td>
+    <td><h4><strong>{{post.imdbID}}</strong></h4></td>
+    <td><h4><strong>{{post.Director}}</strong></h4></td>
+    <td><h4><strong>{{post.Language}}</strong></h4></td>
+    <td><h4><strong>{{post.Type}}</strong></h4></td>
+    <!-- <td><h4><strong>{{post.Writer}}</strong></h4></td> -->
+    <td><h4><strong>{{post.Metascore}}</strong></h4></td>
+    <td><h4><strong>{{post.Country}}</strong></h4></td>
+    <td><h4><strong>{{post.Released}}</strong></h4></td>
+    <td><h4><strong>{{post.Rated}}</strong></h4></td>
+  {% endfor %}
+</div>
+
+{% endblock %}

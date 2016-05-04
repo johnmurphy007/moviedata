@@ -1,0 +1,62 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<br>
+<hr>
+
+<div>
+  <h1>Movie MetaData</h1>
+  <br>
+  <hr>
+  <table id="report">
+     <tr>
+         <td><h4><strong>Title</strong></h4></td>
+         <td><h4><strong>IMDB Rating</strong></h4></td>
+         <td><h4><strong>Genre</strong></h4></td>
+         <td><h4><strong>Year</strong></h4></td>
+         <td><h4><strong>Runtime</strong></h4></td>
+         <td><h4><strong>Actors</strong></h4></td>
+         <td><h4><strong>Awards</strong></h4></td>
+         <td><h4><strong>Director</strong></h4></td>
+         <td><h4><strong>Language</strong></h4></td>
+         <td><h4><strong>Type</strong></h4></td>
+         <th></th>
+     </tr>
+       {% for post in posts %}
+     <tr>
+         <td><h4><strong>{{post.Title}}</strong></h4></td>
+         <td><h4><strong>{{post.imdbRating}}</strong></h4></td>
+         <td><h4><strong>{{post.Genre}}</strong></h4></td>
+         <td><h4><strong>{{post.Year}}</strong></h4></td>
+         <td><h4><strong>{{post.Runtime}}</strong></h4></td>
+         <td><h4><strong>{{post.Actors}}</strong></h4></td>
+         <td><h4><strong>{{post.Awards}}</strong></h4></td>
+         <td><h4><strong>{{post.Director}}</strong></h4></td>
+         <td><h4><strong>{{post.Language}}</strong></h4></td>
+         <td><h4><strong>{{post.Type}}</strong></h4></td>
+         <td><strong><div class="arrow"></div></strong></td>
+     </tr>
+
+     <tr>
+         <td colspan="10">
+             <h4><strong>{{post.Title}} - Additional Info:</strong></h4>
+             <ul>
+                 <h4><strong>Plot: {{post.Plot}}</strong></h4>
+                 <br>
+                 <h4><strong>imdb ID:&emsp; &emsp;&emsp;{{post.imdbID}}</strong></h4>
+                 <h4><strong>Writer:&emsp; &emsp;&emsp;&emsp;{{post.Writer}}</strong></h4>
+                 <h4><strong>Metascore: &emsp;{{post.Metascore}}</strong></h4>
+                 <h4><strong>Country: &emsp;&emsp;&emsp;{{post.Country}}</strong></h4>
+                 <h4><strong>Released: &emsp;&emsp;{{post.Released}}</strong></h4>
+                 <h4><strong>Rated: &emsp;&emsp;&emsp;&emsp;{{post.Rated}}</strong></h4>
+                 <h4><strong>imdb Votes: &emsp;{{post.imdbVotes}}</strong></h4>
+                </ul>
+         </td>
+     </tr>
+    {% endfor %}
+   </table>
+
+</div>
+
+{% endblock %}

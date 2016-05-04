@@ -1,0 +1,148 @@
+{% extends "_base.html" %}
+
+{% block content %}
+	<div class="jumbotron">
+	<div class="container">
+	<div class="row">
+		<div class="col-sm-12">
+			<h2>There are <span text="${countobjects}"></span> Movies available to pick from</h2>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12">
+			<h3>Please use search criteria below to search by: <a href="/browse/listall/objects/1/10">imdb Rating<span class="badge" text="${countobjects}">0</span></a>
+			<a href="/browse/listall/participants/1/10">Movie Name<span class="badge" text="${countpeople}">0</span></a>
+				<a href="/browse/listall/roles/1/10">Genre<span class="badge" text="${countrole}">0</span></a>
+					<a href="/browse/listall/roles/1/10">Director<span class="badge" text="${countrole}">0</span></a>
+				</h3>
+		</div>
+	</div>
+	</div>
+
+</div>  <!-- END JUMBOTRON -->
+<!-- CREATE DROP DOWN SELECTION MENUS -->
+<div class="container">
+	<h3><font color="RED" text="${message}"></font></h3>
+
+<form action="#" method="post"  object="${searchoptions}" action="/browse/" role="form">
+
+
+
+  <h2>Choose Search Criteria</h2>
+  <div class="panel-group" id="accordion">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+       <a data-toggle="collapse" id="collapse11" data-parent="#accordion" href="#collapse1">imdb Rating</a>
+        </h3>
+      </div>
+      <div id="collapse1" class="panel-collapse collapse in">
+        <div class="panel-body">
+        		<div class="form-group">
+        		<label for="objectID"> Search By: </label>
+		<select th:field="*{string2}" class="form-control" name="searchoptions">
+	    	<option value="title">Search by Title</option>
+	    	<option value="id">Search by Object ID</option>
+	    	<option value="medium">Search by Medium</option>
+	    	<option value="creditline">Search by CreditLine</option>
+	    	<option value="description">Search by Description</option>
+	    	<option value="images">Search by Images</option>
+	    </select>
+	    <p> </p>
+   <input class="form-control"  id="searchsource" th:field="*{string6}" type="hidden" name="searchsource" />
+             <input class="form-control"  th:field="*{string3}" type="text" name="searchinfo"  placeholder="Enter Search Criteria"/>
+             <p> </p>
+                        <input  type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+                     </div>
+                     </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" id="collapse22" data-parent="#accordion" href="#collapse2">Movie Name</a>
+        </h3>
+      </div>
+      <div id="collapse2" class="panel-collapse collapse">
+        <div class="panel-body">
+		<div class="form-group">
+				<label for="objectID"> Movie Name : </label>
+					<input class="form-control" th:field="*{string4}" type="text" name="personid"  placeholder="Enter Movie Name"/>
+            <p> </p>
+                   <input   type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+    </div>
+		</div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" id="collapse33" data-parent="#accordion" href="#collapse3">Genre</a>
+        </h3>
+      </div>
+      <div id="collapse3" class="panel-collapse collapse">
+        <div class="panel-body"><div class="form-group">
+				<label for="objectID"> Genre: </label>
+				<input class="form-control" th:field="*{string5}"  type="text" name="rolename"  placeholder="Enter Genre Name"/>
+            <p> </p>
+                   <input   type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+    </div>
+
+    </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+       <a data-toggle="collapse" id="collapse44" data-parent="#accordion" href="#collapse4">Director</a>
+        </h3>
+      </div>
+      <div id="collapse4" class="panel-collapse collapse">
+        <div class="panel-body">
+        		<div class="form-group">
+        		<label for="objectID"> Search By: </label>
+		<select th:field="*{string7}" class="form-control" name="searchoptions">
+	    	<option value="crowdsourcing">Directors Name</option>
+	    	<option value="comments">User comments</option>
+	    	<option value="tagwords">Tag Words</option>
+	    </select>
+	    <p> </p>
+             <input class="form-control"  th:field="*{string8}" type="text" name="searchinfo"  placeholder="Enter Director Name"/>
+             <p> </p>
+                        <input type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+                     </div>
+                     </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+	<div class="col-sm-12">
+	<h3>Return Results:</h3>
+	</div>
+	</div>
+
+  <div class="row">
+	<div class="col-sm-6">
+	<label>Number of results per page:</label>
+	    <select th:field="*{int1}" class="form-control" name="itemsperpage" >
+	    	<option value="10">10 items per page</option>
+	    	<option value="25">25 items per page</option>
+	    	<option value="50">50 items per page</option>
+	    	</select>
+
+
+        </div>
+        	<div class="col-sm-6">
+        		<label>Results sorted by:</label>
+	    <select th:field="*{string1}" class="form-control" name="orderofresults">
+	    	<option value="ASC">Sort Results in Ascending order</option>
+	    	<option value="DESC">Sort Results in Descending order</option>
+	    	</select>
+        </div>
+
+</div>
+
+  </form>
+</div>
+{% endblock %}

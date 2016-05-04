@@ -1,16 +1,7 @@
 #!/usr/bin/python
 #app.py
-#from flask import Flask
-#app = Flask(__name__)
-
-#@app.route('/')
-#def hello():
-#    return '<h1>Hello everyone again in H1 or maybe not!!</h1>'
 from flask import Flask
-from flask import request, render_template, redirect, url_for
-#from flask.ext.sqlalchemy import SQLAlchemy
-#from config import BaseConfig
-#JM added imports:
+from flask import request, render_template, redirect, url_for, send_from_directory
 import re
 import sys
 #import json
@@ -19,11 +10,11 @@ import requests
 
 import logging
 import os
-
 from flask import json
-#from flask import (Flask, request, json)
 
+#Added 2-5-2016 static...
 app = Flask(__name__)
+
 app.logger.setLevel(logging.DEBUG)
 stream_handler = logging.StreamHandler()
 stream_formatter = logging.Formatter('[%(asctime)s] [%(module)s:%(lineno)d] [%(levelname)s] %(message)s')
@@ -38,123 +29,108 @@ else:
 client = MongoClient(host, 27017)
 db = client.movies  # db = client.primer
 
-
-@app.route('/hello', methods=["GET"])
-def route_hello():
-    if 'name' not in request.args:
-        app.logger.warn('Missing name parameter')
-        return "Missing 1 name parameter", 400
-    return "Hi %s" % request.args['name'], 200
-
-
-@app.route('/hello/<name>', methods=["GET"])
-def route_hello_name(name):
-    return "Hi %s" % name, 200
-
-@app.route('/postexample', methods=["POST"])
+@app.route('/movieinfo', methods=["POST"])
 def route_postexample():
-    app.logger.warn('/postexample url')
+    app.logger.warn('/movieinfo POST url')
     text1 = request.form['text']
-#    post = Post(text)
     app.logger.warn(text1)
-#    app.logger.warn(Post)
-    #posts=json.dumps({'text':'1234'})
     posts = getmatch(text1)
-    #posts = []
-    #posts.append(moviejsonresponse)
-    #posts={"text":text1}
-    app.logger.warn(posts)
+    #app.logger.warn(posts)
     return render_template('index.html', posts=posts)
-    #return json.dumps({'id':'1234'}), 201, {'Content-Type': 'application/json'}
 
+@app.route('/movieinfo/all', methods=["GET"])
+def route_getmovieinfoall():
+    app.logger.warn('/movieinfo/all GET url')
+    posts = db.movies.find()
+    return render_template('movieinfoall.html', posts=posts)
 
-@app.route('/postexample', methods=["GET"])
+@app.route('/movieinfo/imdb/<rating>', methods=["GET"])
+def route_getmovieimdb(rating):
+    app.logger.warn('/movieinfo/imdb/<rating> GET url')
+    imdbrating = rating #float(rating)
+    posts = db.movies.find( { "imdbRating": { "$gte": imdbrating, "$ne": "N/A" } } )
+    return render_template('movieinfoall.html', posts=posts)
+
+@app.route('/movieinfo', methods=["GET"])
 def route_getexample():
-    app.logger.warn('/postexample GET url')
-#    text = request.form['text']
-#    post = Post(text)
-#    app.logger.warn(text)
-#    app.logger.warn(Post)
+    app.logger.warn('/movieinfo GET url')
     posts=json.dumps({'text':'1234'})
     app.logger.warn(posts)
     return render_template('index.html',posts=posts)
-    #return json.dumps({'id':'1234'}), 201, {'Content-Type': 'application/json'}
-#'''
-'''
-def app(environ, start_response):
-      data = b"Hello, World!\n"
-      start_response("200 OK", [
-          ("Content-Type", "text/plain"),
-          ("Content-Length", str(len(data)))
-      ])
-      return iter([data])
-'''
+
+@app.route('/options', methods=["GET"])
+def route_getoptions():
+    app.logger.warn('/options GET url')
+    return render_template('displayOptions.html')
+
+
+@app.route('/', methods=["GET"])
+def route_getbase():
+    app.logger.warn('/ GET url')
+    return render_template('home.html')
+
 def getmatch(film):
-#    path = "./Movefile"
-#    result = []
-#    for path, dirs, files in os.walk(path):
-#        for f in files:
-#            if re.search('.py', f[len(f)-3:]):
-    #            print str(path)+'/'+str(f)
-#                result.append(str(path)+'/'+str(f))
-                #Genre, rating, description, score
-                #path to copy.
-#    scp <source> <destination>
-
-    # Search MongoDB first for match. If none, get info from omdbapi and then
-    # add to MongoDB.
-    _items = db.movies.find()
+    #items = db.movies.find()
     movielist = []
-    for item in _items:
-        if re.search(film, item['Title']):
-            movielist.append(item)
-            app.logger.warn("Match in MongoDB found: "+str(item))
-    if movielist:
-        return movielist
 
-    #Else, dealing with situation that no Movie match was found:
-
+    #for item in items:
+	#	if "Title" in item:
+	#		if re.search(film, item["Title"]):
+	#			app.logger.warn("Match in MongoDB found: "+str(item))
+	#			movielist.append(item)
+    #if movielist:
+    #    return movielist
+	#Else, dealing with situation that no Movie match was found:
     baseUrl = "http://www.omdbapi.com/" #"?t=Frozen&y=&plot=short&r=json
-#    film = "Frozen"
+	#film = "Frozen"
     try:
-        r = requests.get(baseUrl + "?t="+film+"&y=&plot=short&r=json") #, auth=(username,token))
+        r = requests.get(baseUrl + "?t="+film+"&y=&plot=long&r=json")
         app.logger.warn(r.status_code)
-        moviejson = r.json() #capture json data
+        moviejson = r.json()
     except requests.exceptions.RequestException as e:
         app.logger.warn(e)
         sys.exit(1)
 
+	app.logger.warn(moviejson)
+
+	if "Poster" in moviejson:
+		app.logger.warn(moviejson['Poster'])
+		image = requests.get(moviejson['Poster'])
+		index = poster.rfind('.')
+		ext = poster[index + 1:]
+		name = str(moviejson.Title)
+
+		try:
+			with open(name + '.' + ext, "wb") as code1:
+				app.logger.warn(image.content)
+				code1.write(image.content)
+			code1.close()
+		except:
+			pass
+
+	app.logger.warn(moviejson)
+	app.logger.warn("Next")
     if "imdbRating" in moviejson:
         app.logger.warn(str(moviejson['imdbRating']))
+        app.logger.warn(str(moviejson))
+	if "Poster" in moviejson:
+		app.logger.warn(moviejson['Poster'])
+		image = requests.get(moviejson['Poster'])
+		poster = str(moviejson['Poster'])
+		index = poster.rfind('.')
+		ext = poster[index + 1:]
+		#name = str(moviejson.Title)
 
-    #You can also access databases using dictionary-style access, which removes
-    #Python-specific naming restrictions, as in the following:
-    #db = client['primer']
-#    coll = db.dataset
-
-#Issue with next line:
-    resultdb = db.movies.insert_one(moviejson)
-    app.logger.warn("Adding New Film "+str(resultdb.inserted_id))
-#    resultdb = db.users.insert(transfer)
-#    resultdb.inserted_id
-#    print resultdb.inserted_id
-
-#        print time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(epochtime))
-#        sys.exit(0)
-#    print "Reading from Mongo: "+str(db.users.find())
-#    cursor = db.users.find()
-#Iterate the cursor and print the documents.
-
-#    for film in cursor:
-#        app.logger.warn("file"+str(film))
-
-
-#
-#    print "Reading from Mongo: "+str(db.users.find().pretty())
-######################################################################
-#    for r in result:
-#         app.logger.warn('Path = '+ getlink(r,"path")+', File Name = '+ getlink(r,"filename"))
-    #print result
+		try:
+			with open(film + '.' + ext, "wb") as code1:
+				#app.logger.warn(image.content)
+				code1.write(image.content)
+			code1.close()
+		except:
+			pass
+    #resultdb = db.movies.insert_one(moviejson)
+    #app.logger.warn("Adding New Film "+str(resultdb.inserted_id))
+	#scanforfilms()
     movielist.append(moviejson)
     return movielist  # str(db.users.find().pretty())
 
@@ -176,3 +152,5 @@ def getlink(full_path_file_name,return_type):
         return filename
     else:
         return path
+#if __name__ == "__main__":
+#    app.run(host-'0.0.0.0', debug=True)

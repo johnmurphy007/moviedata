@@ -1,18 +1,21 @@
 wsgi:
   restart: always
+  container_name: wsgi_1
   build: ./wsgi
   links:
-    - mongo:mongo
+    - mongo
   environment:
     - MODE=dev
   expose:
     - "8000"
   volumes:
-    - $HOME/dockerfile/wsgi/static/:/usr/src/app/static
+    - $HOME/git/moviedata/dockerfile/wsgi/static/:/usr/src/app/static
+    - $HOME/git/moviedata/dockerfile/wsgi/:/usr/src/app/
   #command: /usr/local/bin/gunicorn -c gunicorn.py -w 2 -b :8000 app:app
 
 nginx:
   restart: always
+  container_name: nginx_1
   build: ./nginx/
   ports:
     - "80:80"
@@ -21,13 +24,36 @@ nginx:
   volumes_from:
     - wsgi
   links:
-    - wsgi:wsgi
-    - mongo:mongo
+    - wsgi
+    #- mongo:mongo
 
 mongo:
+  restart: always
   image: mongo:3.0.4
+  container_name: mongo_1
   command: mongod --quiet
   ports:
     - 27017:27017/tcp
-  #volumes:
-  #  - $HOME/dockerfile/mongo/:/data/db
+  volumes:
+    - data:/data/db
+
+#data:
+#  restart: no
+#  image: mongo:3.0.4
+#  volumes:
+#    - /data/db
+#  command: true
+#  volumes_from:
+#    - data
+
+#data:
+#  image: mongo:3.0.4
+#  volumes:
+#    - /data/db
+#  command: --break-mongo
+  # Note that for the mongodata container we had to set a --break-mongo flag
+  # since docker-compose tries to run all the containers. However, with a
+  # data-volume we only want to create the container, not run it. This seems
+  # to be an existing issue with docker-compose. The workaround is to start
+  # the mongo deamon with a non existent flag which it breaks its execution
+  # and leaves the container in a stop state.
