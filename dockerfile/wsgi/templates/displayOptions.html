@@ -10,21 +10,61 @@
 	</div>
 	<div class="row">
 		<div class="col-sm-12">
-			<h3>Please use search criteria below to search by: <a href="/browse/listall/objects/1/10">imdb Rating<span class="badge" text="${countobjects}">0</span></a>
-			<a href="/browse/listall/participants/1/10">Movie Name<span class="badge" text="${countpeople}">0</span></a>
-				<a href="/browse/listall/roles/1/10">Genre<span class="badge" text="${countrole}">0</span></a>
-					<a href="/browse/listall/roles/1/10">Director<span class="badge" text="${countrole}">0</span></a>
+			<h3>Please use search criteria below to search by: <a href="/browse/listall/objects/1/10">imdb Rating</a>,
+			<a href="/browse/listall/participants/1/10">Movie Name<span class="badge" text="${countpeople}"></span></a>,
+				<a href="/browse/listall/roles/1/10">Genre<span class="badge">{{genres|length}}</span></a>,
+					<a href="/browse/listall/roles/1/10">Director<span class="badge">{{directors|length}}</span></a>
 				</h3>
 		</div>
 	</div>
 	</div>
 
 </div>  <!-- END JUMBOTRON -->
-<!-- CREATE DROP DOWN SELECTION MENUS -->
+
+<div>
+<video width="320" height="240" controls="controls">
+	<source src="../../static/img/music-box.mp4"> <!-- type="video/mp4"> -->
+	<source src="" type="video/ogg">
+		Your browser does not support the <video> element.
+</video>
+</div>
+
+<h2>ImdB Rating:</h2>
+<form>
+ <input type="range" name="imdb" min="3" max="10">
+</form>
+
+<select>
+  <option value="volvo">Volvo</option>
+  <option value="saab">Saab</option>
+  <option value="opel">Opel</option>
+  <option value="audi">Audi</option>
+</select>
+
+<h2>Genre:</h2>
+{% set count = 0 %}
+<form action="/options" method="get">
+{% for genre in genres|sort(reverse=False) %}
+<input type="checkbox" name="{{count}}" value="{{genre}}"/> {{genre}}
+  {% set count = count + 1 %}
+	{% endfor %}
+<input type="submit" value="Get Matching Movies">
+</form>
+
+
+	<h2>Directors:</h2>
+{% for director in directors %}
+<p>{{director}}</p>
+
+
+{% endfor %}
+
 <div class="container">
 	<h3><font color="RED" text="${message}"></font></h3>
 
 <form action="#" method="post"  object="${searchoptions}" action="/browse/" role="form">
+
+
 
 
 

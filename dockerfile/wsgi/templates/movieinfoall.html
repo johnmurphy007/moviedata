@@ -9,23 +9,35 @@
   <h1>Movie MetaData</h1>
   <br>
   <hr>
-  <table id="report">
+
+  <div class="input-group"> <span class="input-group-addon">Filter</span>
+
+      <input id="filter" type="text" class="form-control" placeholder="Type here...">
+  </div>
+<br>
+  <!-- <table class="table table-striped"> -->
+  <!--
+  <table id="report" class="table tablesorter searchable sortable"> -->
+  <table id="report" class="table">
+    <thead>
      <tr>
-         <td><h4><strong>Title</strong></h4></td>
-         <td><h4><strong>IMDB Rating</strong></h4></td>
-         <td><h4><strong>Genre</strong></h4></td>
-         <td><h4><strong>Year</strong></h4></td>
-         <td><h4><strong>Runtime</strong></h4></td>
-         <td><h4><strong>Actors</strong></h4></td>
-         <td><h4><strong>Awards</strong></h4></td>
-         <td><h4><strong>Director</strong></h4></td>
-         <td><h4><strong>Language</strong></h4></td>
-         <td><h4><strong>Type</strong></h4></td>
+         <th>Title</th>
+         <th>IMDB Rating</th>
+         <th><h4><strong>Genre</strong></h4></th>
+         <th><h4><strong>Year</strong></h4></th>
+         <th><h4><strong>Runtime</strong></h4></th>
+         <th><h4><strong>Actors</strong></h4></th>
+         <th><h4><strong>Awards</strong></h4></th>
+         <th><h4><strong>Director</strong></h4></th>
+         <th><h4><strong>Language</strong></h4></th>
+         <th><h4><strong>Type</strong></h4></th>
          <th></th>
      </tr>
+   </thead>
+   <tbody>
        {% for post in posts %}
-     <tr>
-         <td><h4><strong>{{post.Title}}</strong></h4></td>
+     <tr class="searchable">
+         <td>{{post.Title}}</td>
          <td><h4><strong>{{post.imdbRating}}</strong></h4></td>
          <td><h4><strong>{{post.Genre}}</strong></h4></td>
          <td><h4><strong>{{post.Year}}</strong></h4></td>
@@ -37,7 +49,6 @@
          <td><h4><strong>{{post.Type}}</strong></h4></td>
          <td><strong><div class="arrow"></div></strong></td>
      </tr>
-
      <tr>
          <td colspan="10">
              <h4><strong>{{post.Title}} - Additional Info:</strong></h4>
@@ -55,6 +66,7 @@
          </td>
      </tr>
     {% endfor %}
+  </tbody>
    </table>
 
 </div>
