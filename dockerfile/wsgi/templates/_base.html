@@ -7,8 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Movie Data</title>
-
+    <title>{% block title %}{% endblock %} Movie Data</title>
     <!-- styles -->
     <style>
       body { font-family:Arial, Helvetica, Sans-Serif; font-size:0.8em;}
@@ -21,9 +20,10 @@
        #report div.arrow { background:transparent url(../../static/img/arrow-drop-down.png) no-repeat scroll 0px 0px; width:48px; height:48px; display:block;}
        #report div.up { background-position:0px 0px;}
 
-       .carousel-inner item img, .carousel-inner item a img {
-       	width: 40%;
+       .carousel-inner>.item>img {
        	margin: auto;
+        width: auto;
+        max-height: 300px;
        }
     </style>
     <!-- <link href="../static/css/bootstrap.min.css" rel="stylesheet"> -->

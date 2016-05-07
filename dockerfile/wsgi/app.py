@@ -4,6 +4,7 @@ from flask import Flask
 from flask import request, render_template
 # , redirect, url_for, send_from_directory
 import re
+#import yaml
 import sys
 # import json
 from pymongo import MongoClient
@@ -21,6 +22,8 @@ stream_handler = logging.StreamHandler()
 stream_formatter = logging.Formatter('[%(asctime)s] [%(module)s:%(lineno)d][%(levelname)s] %(message)s')
 stream_handler.setFormatter(stream_formatter)
 app.logger.addHandler(stream_handler)
+
+#config = yaml.safe_load(open("config.yml"))
 
 if ('DB_PORT_27017_TCP_ADDR' in os.environ):
     host = os.environ['DB_PORT_27017_TCP_ADDR']
@@ -60,33 +63,41 @@ def route_getmovieimdb(rating):
 def route_getexample():
     app.logger.warn('/movieinfo GET url')
     posts = json.dumps({'text': '1234'})
-    app.logger.warn(posts)
-    return render_template('index.html', posts=posts)
+    # app.logger.warn(posts)
+    return render_template('index.html')
 
 
 @app.route('/options', methods=["GET"])
 def route_getoptions():
     app.logger.warn('/options GET url')
     genres, directors = getGenre()
-    url = request.values
-    app.logger.warn("XXXXXXXXXX")
-    app.logger.warn(url)
-    # filterurl = url
-    if len(url) > 1:
-        value = url.values()
-        query = '{"Genre": "' + str(value[0]) + '"}'
-
+    url = request.values  # Get value from GET(/POST) request
+    posts = {"Title": "X-men"}
+    app.logger.info(url)
+    if len(url) == 1:
+        query = {}
+        value = url.values()  # Get values from dict
+        query['Genre'] = value[0]
+        posts = db.movies.find(query)
+        app.logger.info(value[0])
     else:
-        query = '{"$or": [{"Genre: "'
+        query = []
         for u in url:
-            query = str(query) + '"' + url[u] + '"},'
-        query = query[:len(query) - 1]
-        query = str(query)+']}'
-    app.logger.warn(query)
-    posts = db.movies.find(query)
-    # app.logger.warn(temp)
+            querydict = {}
+            querydict['Genre'] = url[u]
+            query.append(querydict)
+        app.logger.info(query)
+        posts = db.movies.find({'$or': query})
+        app.logger.info(posts)
+    # query = {"Genre": "Adventure"}
+    posts = db.movies.find({"Genre": "Adventure"})
+    for f in posts:
+        app.logger.info(f)
+    # result = db.test.delete_one({'x': 1})
+
+    # app.logger.warn(posts)
     # directors = getDirector()
-    return render_template('displayOptions.html', genres=genres, directors=directors)
+    return render_template('displayOptions.html', genres=genres, directors=directors, posts=posts)
 
 
 @app.route('/options', methods=["POST"])
@@ -114,23 +125,23 @@ def getGenre():
     for film in alltype:
         if "Genre" in film:
             genrefile = film['Genre'].split(",")
-            app.logger.warn(genrefile)
+            # app.logger.warn(genrefile)
             for i in genrefile:
-                app.logger.info(i.strip())
+                # app.logger.info(i.strip())
                 genres.append(i.strip())
 
         if "Director" in film:
             dirfile = film['Director'].split(",")
-            app.logger.warn(dirfile)
+            # app.logger.warn(dirfile)
             for i in dirfile:
-                app.logger.info(i.strip())
+                # app.logger.info(i.strip())
                 directors.append(i.strip())
 
-    app.logger.info("Final")
+    # app.logger.info("Final")
     gen = list(set(genres))
     dirs = list(set(directors))
-    app.logger.info(gen)
-    app.logger.info(dirs)
+    # app.logger.info(gen)
+    # app.logger.info(dirs)
     return gen, dirs
 
 

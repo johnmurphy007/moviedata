@@ -1,5 +1,7 @@
 {% extends "_base.html" %}
 
+{% block title %}Options{% endblock %}
+
 {% block content %}
 	<div class="jumbotron">
 	<div class="container">
@@ -22,7 +24,7 @@
 </div>  <!-- END JUMBOTRON -->
 
 <div>
-<video width="320" height="240" controls="controls">
+<video width="640" height="480" controls="controls">
 	<source src="../../static/img/music-box.mp4"> <!-- type="video/mp4"> -->
 	<source src="" type="video/ogg">
 		Your browser does not support the <video> element.
@@ -37,9 +39,18 @@
 <select>
   <option value="volvo">Volvo</option>
   <option value="saab">Saab</option>
-  <option value="opel">Opel</option>
-  <option value="audi">Audi</option>
 </select>
+<div>
+	<h1>DISPLAY FILMS</h1>
+	{% set count = 0 %}
+{% for post in posts %}
+	  <p>{{post.Title}}</p>
+		{{post.Genre}} {{count}}
+		{% set count = count + 1 %}
+{% endfor %}
+---------
+</div>
+
 
 <h2>Genre:</h2>
 {% set count = 0 %}

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#import parse_md
+# import parse_md
 """
 Program: .py
 Rev: 1.0.0
@@ -11,7 +11,7 @@ import os
 import re
 import sys
 #
-#import json
+# import json
 from pymongo import MongoClient
 import requests
 import logging
@@ -20,7 +20,7 @@ from flask import Flask
 from flask import request, render_template, redirect, url_for, send_from_directory
 
 # Setting static_folder=None disables built-in static handler.
-app = Flask(__name__)  #static_url_path='')
+app = Flask(__name__)  # static_url_path='')
 app.logger.setLevel(logging.DEBUG)
 stream_handler = logging.StreamHandler()
 stream_formatter = logging.Formatter('[%(asctime)s] [%(module)s:%(lineno)d] [%(levelname)s] %(message)s')
@@ -28,9 +28,9 @@ stream_handler.setFormatter(stream_formatter)
 app.logger.addHandler(stream_handler)
 
 if ('DB_PORT_27017_TCP_ADDR' in os.environ):
-	host = os.environ['DB_PORT_27017_TCP_ADDR']
+    host = os.environ['DB_PORT_27017_TCP_ADDR']
 else:
-	host = '192.168.99.100'
+    host = '192.168.99.100'
 
 client = MongoClient(host, 27017)
 db = client.movies  # db = client.primer
@@ -39,7 +39,7 @@ db = client.movies  # db = client.primer
 def searchformovies(path):
     # avi, mov, mp4, .mkv, .vob, .ogg, .wmv, .mp2
     # if .vob: folder will be VIDEO_TS (need to filter back for this)
-    filmformats = ['.avi','.mov','.mp4','.mkv','.ogg','.wmv','.mp2']
+    filmformats = ['.avi', '.mov', '.mp4', '.mkv', '.ogg', '.wmv', '.mp2']
     filmformatvob = '.VOB'
     remove = '/Volumes'
     prepend = '/share'
@@ -86,11 +86,11 @@ def processdir(dirname):
             name = dirname
     return name, year
 
-def getfilmdata(film, year, fullpathtomovie):
 
-	#Else, dealing with situation that no Movie match was found:
-    baseUrl = "http://www.omdbapi.com/" #"?t=Frozen&y=&plot=short&r=json
-	#film = "Frozen"
+def getfilmdata(film, year, fullpathtomovie):
+    # Else, dealing with situation that no Movie match was found:
+    baseUrl = "http://www.omdbapi.com/"  # "?t=Frozen&y=&plot=short&r=json
+    # film = "Frozen"
     try:
         if year:
             year = str(year)
@@ -100,9 +100,9 @@ def getfilmdata(film, year, fullpathtomovie):
         year = ''
 
     try:
-        r = requests.get(baseUrl + "?t="+film+"&y="+year+"&plot=full&r=json") #, auth=(username,token))
+        r = requests.get(baseUrl + "?t="+film+"&y="+year+"&plot=full&r=json")
         app.logger.warn(r.status_code)
-        moviejson = r.json() #capture json data
+        moviejson = r.json()  # capture json data
     except requests.exceptions.RequestException as e:
         app.logger.warn(e)
 
@@ -126,7 +126,7 @@ def main():
     for movie in movies:
         name, year = processdir(movie)
         print name, year
-        #Check for match in MongoDB:
+        # Check for match in MongoDB:
         if year:
             _items = db.movies.find_one({"Title": name, "Year": year})
         else:
@@ -152,7 +152,7 @@ def main():
             print('error writing to file')
     return
 
-    #getmatch()
+    # getmatch()
     return
 
 if __name__ == '__main__':
