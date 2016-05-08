@@ -41,7 +41,24 @@
 
     <script type="text/javascript">
 
+    $(document).ready(function () {
+           (function ($) {
+              //Code to filter data on webpage
+              $('#filter').keyup(function () {
+
+                  var rex = new RegExp($(this).val(), 'i');
+                  //$('.searchable tr').hide();
+                  $('.searchable').hide();
+                  $('.searchable').filter(function () {
+                      return rex.test($(this).text());
+                  }).show();
+              })
+          }(jQuery));
+
+      });
+
     $(document).ready(function(){
+          //Used to show additional content for a row
            $("#report tr:odd").addClass("odd");
            $("#report tr:not(.odd)").hide();
            $("#report tr:first-child").show();
@@ -50,53 +67,27 @@
                $(this).next("tr").toggle();
                $(this).find(".arrow").toggleClass("up");
            });
+           //  $("#report").tablesorter();
 
-        //  $("#report").tablesorter();
+           var options = "";
+           for(var i = 10; i>3.9; i=i-0.5 ) {
+              if (i === 8)
+             {
+               options += "<option selected value="+i+">"+i+"</option>";
+             }
+            else {
+              options += "<option value="+i+">"+i+"</option>";
+            }
+           }
+           document.getElementById('someSelect').innerHTML = options;
+
+           var options2 = "<option value=''></option>";
+           for(var i = 10; i>3.9; i=i-0.5 ) {
+              options2 += "<option value="+i+">"+i+"</option>";
+           }
+           document.getElementById('optsomeSelect').innerHTML = options2;
+
 });
-
-$(document).ready(function () {
-       (function ($) {
-
-          $('#filter').keyup(function () {
-
-              var rex = new RegExp($(this).val(), 'i');
-              //$('.searchable tr').hide();
-              $('.searchable').hide();
-              $('.searchable').filter(function () {
-                  return rex.test($(this).text());
-              }).show();
-
-          })
-      }(jQuery));
-         });
-
-$(document).ready(function(){
-         function sortTable(){
-            //$("#report tr:odd").addClass("odd");
-     var rows = $('#report tbody tr').get();
-
-     rows.sort(function(a, b) {
-
-     var A = $(a).children('td').eq(1).text().toUpperCase();
-     var B = $(b).children('td').eq(1).text().toUpperCase();
-
-     if(A < B) {
-       return -1;
-     }
-
-     if(A > B) {
-       return 1;
-     }
-
-     return 0;
-
-     });
-
-     $.each(rows, function(index, row) {
-       $('#report').children('tbody').append(row);
-     });
-   }
-    });
 
     </script>
   </head>

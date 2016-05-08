@@ -4,7 +4,7 @@
 {% block content %}
 
 	<div class="container">
-		<br></br>
+
 		<div id="myCarousel" class="carousel slide" data-ride="carousel">
 			<!-- Indicators -->
 			<ol class="carousel-indicators">
@@ -54,19 +54,153 @@
 			</a>
 		</div>
 	</div>
-<p>Put in info on number of types of file, number of filmes, Directors here</p>
-<p>Put in options to select movies here</p>
-	<!-- Insert Columns after Carousel next -->
-	<!-- <div class="container">
-		<p></p>
-		<p></p>
-<h1>Browse Movie Collection</b></h1>
-		<div class="row">
-			<div class="col-sm-4"><h3>1</h3></div>
-			<div class="col-sm-4"><h3><font color="lightblue">2</font></h3></div>
-			<div class="col-sm-4"><h3>3</h3></div>
+
+	<br>
+
+	<div class="jumbotron">
+
+	<div class="row">
+		<div class="col-sm-12">
+			<h4>Choose from <span>{{posts|length}}</span> Movies in the library. Search by:
+				<a href="/movieinfo/imdb/8">imdb Rating</a>,
+				<a href="/movieinfo">Movie Name<span class="badge">{{posts|length}}</span></a>,
+				<a href="/movieinfo">genre<span class="badge">{{genres|length}}</span></a> or
+				<a href="/movieinfo">Director<span class="badge">{{directors|length}}</span></a>
+			</h4>
 		</div>
-	</div> -->
+	</div>
 
 
+<div class="panel-group" id="accordion">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				<a data-toggle="collapse" id="collapse11" data-parent="#accordion" href="#searchimdb">imdb Rating</a>
+			</h3>
+		</div>
+		<div id="searchimdb" class="panel-collapse collapse in">
+			<div class="panel-body">
+<form role="form" action="/movieinfo/imdb" method="get">
+				<div class="form-group">
+
+					<div class="row">
+						<div class="col-sm-1">
+							<label for="objectID">&emsp;</label>
+							<select class="form-control" name="sortby">
+								<option selected value="asc"> >= </option>
+								<option value="equal"> = </option>
+								<option value="desc"> <= </option>
+							</select>
+						</div>
+
+						<div class="col-sm-1">
+								<label for="objectID">&emsp;</label>
+							<select id="someSelect" class="form-control" name="imdbrating">
+											<!-- Javascript inserts options -->
+							</select>
+						</div>
+						<!-- <div class="col-sm-1"></div> -->
+						<div class="col-sm-1">
+								<label for="objectID">Optional </label>
+							<select class="form-control" name="optsortby">
+								<option selected value=""> </option>
+								<option value="asc"> >= </option>
+								<option value="equal"> = </option>
+								<option value="desc"> <= </option>
+							</select>
+						</div>
+
+						<div class="col-sm-1">
+								<label for="objectID">Optional </label>
+							<select id="optsomeSelect" class="form-control" name="optimdbrating">
+											<!-- Javascript inserts options -->
+							</select>
+						</div>
+						<div class="col-sm-1"></div>
+						<div class="col-sm-3">
+							<label for="objectID">&emsp; </label>
+							<input type="submit" class="btn btn-primary btn-xd" value="Search"></input>
+						</div>
+					</div>
+				</div>
+	<!-- <button type="submit" class="btn btn-primary btn-xd">Search</input> -->
+</form>
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				<a data-toggle="collapse" id="collapse22" data-parent="#accordion" href="#searchmoviename">Movie Name</a>
+			</h3>
+		</div>
+		<div id="searchmoviename" class="panel-collapse collapse">
+			<div class="panel-body">
+<form role="form" action="/movieinfo" method="get">
+
+				<div class="form-group">
+					<div class="row">
+						<div class="col-sm-5">
+								<input type="text" list="someMovie" name="moviename" placeholder="Enter Movie Name"/>
+								<datalist id="someMovie"> <!--class="form-control" name="director"> -->
+										 {% for dir in posts|sort(reverse=False) %}
+												<option value="{{dir}}">{{dir}}</option>
+												 {% endfor %}
+								</datalist>
+							<!-- <input class="form-control" type="text" name="moviename"  placeholder="Enter Movie Name"/> -->
+						</div>
+						<div class="col-sm-3">
+							<input type="submit" class="btn btn-primary btn-xd" value="Search"></input>
+						</div>
+					</div>
+				</div>
+</form>
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				<a data-toggle="collapse" id="collapse33" data-parent="#accordion" href="#searchgenre">Genre</a>
+			</h3>
+		</div>
+		<div id="searchgenre" class="panel-collapse collapse">
+			<div class="panel-body">
+<form role="form" action="/movieinfo/all" method="get">
+				<div class="form-group">
+				<label for="objectID">Pick Genre(s): </label>
+				 {% for genre in genres|sort(reverse=False) %}
+				    <input type="checkbox" name="{{genre}}" value="{{genre}}">{{genre}} &emsp;</input>
+			   {% endfor %}
+				<input   type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+			</div>
+</form>
+		</div>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<a data-toggle="collapse" id="collapse44" data-parent="#accordion" href="#searchdirector">Director</a>
+		</h3>
+	</div>
+	<div id="searchdirector" class="panel-collapse collapse">
+		<div class="panel-body">
+<form role="form" action="/movieinfo/all" method="get">
+			<div class="form-group">
+				<!-- <label for="objectID"> Search By: </label> -->
+					<input type="text" list="someDirector" name="director" placeholder="Enter Director Name"/>
+					<datalist id="someDirector"> <!--class="form-control" name="director"> -->
+							 {% for dir in directors|sort(reverse=False) %}
+									<option value="{{dir}}">{{dir}}</option>
+									 {% endfor %}
+					</datalist>
+				<input type="submit" class="btn btn-primary btn-xd" value="Search"/>
+			</div>
+</form>
+		</div>
+	</div>
+</div>
+</div>
+</div>  <!-- END JUMBOTRON -->
 	{% endblock %}

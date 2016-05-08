@@ -6,7 +6,6 @@ from flask import request, render_template
 import re
 #import yaml
 import sys
-# import json
 from pymongo import MongoClient
 import urlparse
 import requests
@@ -14,7 +13,6 @@ import logging
 import os
 from flask import json
 
-# Added 2-5-2016 static...
 app = Flask(__name__)
 
 app.logger.setLevel(logging.DEBUG)
@@ -47,30 +45,87 @@ def route_postexample():
 @app.route('/movieinfo/all', methods=["GET"])
 def route_getmovieinfoall():
     app.logger.warn('/movieinfo/all GET url')
-    posts = db.movies.find()
+    posts = db.movies.find()  # By default get all entries! (maybe change this in time)
+
+    url = request.values  # Get value from GET(/POST) request
+    # Get keys of url and add them to array
+    if 'Action' in url:
+        # genre=Action&genre=Adventure
+        genrelist = []
+        app.logger.warn(url)
+        for genretype in url:
+            app.logger.warn(genretype)
+            genrelist.append(genretype)
+            posts = db.movies.find({"Genre": {"$elemMatch": {"Genre": genretype}}})
+        # posts = db.movies.find()
+        app.logger.warn(genrelist)
+        #posts = db.movies.find({"Genre": { "$in": genrelist}})
+        #posts = db.movies.find({"Genre": { "$in": genrelist}})
+        #posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
+    #posts = db.movies.find()
     return render_template('movieinfoall.html', posts=posts)
 
 
-@app.route('/movieinfo/imdb/<rating>', methods=["GET"])
-def route_getmovieimdb(rating):
-    app.logger.warn('/movieinfo/imdb/<rating> GET url')
-    imdbrating = rating  # float(rating)
-    posts = db.movies.find({"imdbRating": {"$gte": imdbrating, "$ne": "N/A"}})
+#@app.route('/movieinfo/imdb/<rating>', methods=["GET"])
+#def route_getmovieimdb(rating):
+@app.route('/movieinfo/imdb', methods=["GET"])
+def route_getmovieimdb():
+    app.logger.warn('/movieinfo/imdb GET url')
+    #imdbrating = rating  # float(rating)
+    url = request.values  # Get value from GET(/POST) request
+    # ?optsortby=asc&optimdbrating=9.5
+    if 'sortby' in url:
+        if url['sortby'] == "asc":
+            operator = "$gte"
+        elif url['sortby'] == "desc":
+            operator = "$lte"
+        else:
+            operator = "$eq"
+
+    if 'imdbrating' in url:
+        imdbrating = url['imdbrating']
+
+    if 'optsortby' in url:
+        opt_operator = ''
+        if url['optsortby'] == "asc":
+            opt_operator = "$gte"
+        elif url['optsortby'] == "desc":
+            opt_operator = "$lte"
+        elif url['optsortby'] == "equal":
+            opt_operator = "$eq"
+        if opt_operator:
+            app.logger.warn(opt_operator)
+        else:
+            app.logger.warn("Not defined!")
+
+    if 'optimdbrating' in url:
+        opt_imdbrating = url['optimdbrating']
+        app.logger.warn(opt_imdbrating)
+
+    if opt_operator and opt_imdbrating:
+        posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A", opt_operator: opt_imdbrating}})
+    else:
+        posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A"}})
+
     return render_template('movieinfoall.html', posts=posts)
 
 
 @app.route('/movieinfo', methods=["GET"])
 def route_getexample():
     app.logger.warn('/movieinfo GET url')
+
+    url = request.values  # Get value from GET(/POST) request
     posts = json.dumps({'text': '1234'})
-    # app.logger.warn(posts)
-    return render_template('index.html')
+    if 'moviename' in url:
+        posts = db.movies.find({"Title": url['moviename']})
+    app.logger.info(posts)
+    return render_template('index.html', posts=posts)
 
 
 @app.route('/options', methods=["GET"])
 def route_getoptions():
     app.logger.warn('/options GET url')
-    genres, directors = getGenre()
+    genres, directors, posts = getBasicMetadata()
     url = request.values  # Get value from GET(/POST) request
     posts = {"Title": "X-men"}
     app.logger.info(url)
@@ -114,13 +169,16 @@ def route_postoptions():
 @app.route('/', methods=["GET"])
 def route_getbase():
     app.logger.warn('/ GET url')
-    return render_template('home.html')
+    genres, directors, films = getBasicMetadata()
+    posts = db.movies.find()
+    return render_template('home.html', genres=genres, directors=directors, posts=films)
 
 
-def getGenre():
+def getBasicMetadata():
     alltype = db.movies.find()
     genres = []
     directors = []
+    films = []
 
     for film in alltype:
         if "Genre" in film:
@@ -137,12 +195,15 @@ def getGenre():
                 # app.logger.info(i.strip())
                 directors.append(i.strip())
 
+        if "Title" in film:
+            films.append(film['Title'])
+
     # app.logger.info("Final")
     gen = list(set(genres))
     dirs = list(set(directors))
     # app.logger.info(gen)
     # app.logger.info(dirs)
-    return gen, dirs
+    return gen, dirs, list(set(films))
 
 
 def getmatch(film):
