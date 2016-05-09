@@ -4,7 +4,6 @@ from flask import Flask
 from flask import request, render_template
 # , redirect, url_for, send_from_directory
 import re
-#import yaml
 import sys
 from pymongo import MongoClient
 import urlparse
@@ -21,7 +20,9 @@ stream_formatter = logging.Formatter('[%(asctime)s] [%(module)s:%(lineno)d][%(le
 stream_handler.setFormatter(stream_formatter)
 app.logger.addHandler(stream_handler)
 
-#config = yaml.safe_load(open("config.yml"))
+# global variable
+config_file = "config.json"
+
 
 if ('DB_PORT_27017_TCP_ADDR' in os.environ):
     host = os.environ['DB_PORT_27017_TCP_ADDR']
@@ -45,33 +46,72 @@ def route_postexample():
 @app.route('/movieinfo/all', methods=["GET"])
 def route_getmovieinfoall():
     app.logger.warn('/movieinfo/all GET url')
-    posts = db.movies.find()  # By default get all entries! (maybe change this in time)
-
     url = request.values  # Get value from GET(/POST) request
-    # Get keys of url and add them to array
-    if 'Action' in url:
-        # genre=Action&genre=Adventure
-        genrelist = []
-        app.logger.warn(url)
-        for genretype in url:
-            app.logger.warn(genretype)
-            genrelist.append(genretype)
-            posts = db.movies.find({"Genre": {"$elemMatch": {"Genre": genretype}}})
-        # posts = db.movies.find()
-        app.logger.warn(genrelist)
-        #posts = db.movies.find({"Genre": { "$in": genrelist}})
-        #posts = db.movies.find({"Genre": { "$in": genrelist}})
-        #posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
-    #posts = db.movies.find()
+
+    if 'moviename' in url:
+        # Get matching entries
+        search = url['moviename']
+        posts = db.movies.find({'Title': {'$regex': search, "$options": "$i"}})
+    else:
+        # Get all entries
+        posts = db.movies.find()
+
     return render_template('movieinfoall.html', posts=posts)
 
 
-#@app.route('/movieinfo/imdb/<rating>', methods=["GET"])
-#def route_getmovieimdb(rating):
+@app.route('/movieinfo/genre', methods=["GET"])
+def route_getmoviegenre():
+    app.logger.warn('/movieinfo/genre GET url')
+    url = request.values  # Get value from GET(/POST) request
+
+    if url.keys():  # Get keys of url and add them to array
+        genrelist = url.keys()
+        app.logger.info(genrelist)
+        search = '|'.join(genrelist)
+    app.logger.info(search)
+    posts = db.movies.find({'Genre': {'$regex': search, "$options": "$i"}})
+
+    return render_template('movieinfogenre.html', posts=posts)
+    # posts = db.movies.find({'Title': '/.*Sup.*/'})
+    # posts = db.movies.find({"Genre": {"$elemMatch": {"$eq": "Action", "$eq": "Comedy"}}})
+    # posts = db.movies.find({"$or": [{"Genre": {"$in": genrelist}}]})
+    # posts = db.movies.find({"$where": 'function() {var genre = this.Genre.split(","); for (i = 0; i < genre.length; i++) { if (genre == "Action") return this.genre; } }'})
+    # db.inventory.find( { $or: [ { quantity: { $lt: 20 } }, { price: 10 } ] })
+    # posts = db.movies.find({"Genre": "Action, Adventure, Drama"})
+    # posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
+    # posts = db.movies.find({"Genre": {"$elemMatch": {"Genre": genrelist}}})
+    # posts = db.movies.find()
+    # posts = db.movies.find({"Genre": { "$in": genrelist}})
+    # posts = db.movies.find({"Genre": { "$in": genrelist}})
+    # posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
+    # posts = db.movies.find()
+
+
+@app.route('/movieinfo/director', methods=["GET"])
+def route_getmoviedirector():
+    app.logger.warn('/movieinfo/director GET url')
+
+    url = request.values  # Get value from GET(/POST) request
+
+    if 'director' in url:
+        # Get matching entries
+        search = url['director']
+        # search.replace('+', ' ')
+        app.logger.info(search)
+        posts = db.movies.find({'Director': {'$regex': search, "$options": "$i"}})
+    else:
+        # Get all entries
+        posts = db.movies.find()
+
+    return render_template('movieinfoall.html', posts=posts)
+
+
+# @app.route('/movieinfo/imdb/<rating>', methods=["GET"])
+# def route_getmovieimdb(rating):
 @app.route('/movieinfo/imdb', methods=["GET"])
 def route_getmovieimdb():
     app.logger.warn('/movieinfo/imdb GET url')
-    #imdbrating = rating  # float(rating)
+    # imdbrating = rating  # float(rating)
     url = request.values  # Get value from GET(/POST) request
     # ?optsortby=asc&optimdbrating=9.5
     if 'sortby' in url:
@@ -118,7 +158,6 @@ def route_getexample():
     posts = json.dumps({'text': '1234'})
     if 'moviename' in url:
         posts = db.movies.find({"Title": url['moviename']})
-    app.logger.info(posts)
     return render_template('index.html', posts=posts)
 
 
@@ -291,3 +330,26 @@ def getlink(full_path_file_name, return_type):
         return filename
     else:
         return path
+
+
+def writeConfig(json_to_write):
+    with open(config_file, mode='w') as out:
+        res = json.dump(
+            json_to_write,
+            out,
+            sort_keys=True,
+            indent=4,
+            separators=(
+                ',',
+                ': '))
+    out.close()
+    return
+
+
+def readConfig():
+    # config_file = "config.json"
+    with open(config_file, mode='r') as out:
+        input_json = json.load(out)
+    out.close()
+
+    return input_json

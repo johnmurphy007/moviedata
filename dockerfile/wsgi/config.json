@@ -1,0 +1,8 @@
+{
+  "path_to_search": "/Volumes/Qmultimedia/Movies/V/",
+  "host": "192.168.99.100",
+  "port": "8000",
+  "prepend": "/Volumes",
+  "preremove": "/XXXXXXXXXX"
+}
+ 
