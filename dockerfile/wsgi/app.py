@@ -5,6 +5,7 @@ from flask import request, render_template
 # , redirect, url_for, send_from_directory
 import re
 import sys
+import pymongo
 from pymongo import MongoClient
 import urlparse
 import requests
@@ -22,6 +23,7 @@ app.logger.addHandler(stream_handler)
 
 # global variable
 config_file = "config.json"
+
 
 
 if ('DB_PORT_27017_TCP_ADDR' in os.environ):
@@ -54,7 +56,7 @@ def route_getmovieinfoall():
         posts = db.movies.find({'Title': {'$regex': search, "$options": "$i"}})
     else:
         # Get all entries
-        posts = db.movies.find()
+        posts = db.movies.find().sort(('Title'), pymongo.DESCENDING).limit(10).skip(1999)
 
     return render_template('movieinfoall.html', posts=posts)
 
@@ -189,7 +191,6 @@ def route_getoptions():
         app.logger.info(f)
     # result = db.test.delete_one({'x': 1})
 
-    # app.logger.warn(posts)
     # directors = getDirector()
     return render_template('displayOptions.html', genres=genres, directors=directors, posts=posts)
 
@@ -208,9 +209,22 @@ def route_postoptions():
 @app.route('/', methods=["GET"])
 def route_getbase():
     app.logger.warn('/ GET url')
+    #app.logger.warn(readConfig())
     genres, directors, films = getBasicMetadata()
     posts = db.movies.find()
     return render_template('home.html', genres=genres, directors=directors, posts=films)
+
+
+@app.route('/image', methods=["GET"])
+def route_getimage():
+    app.logger.info('/image GET url')
+    genres, directors, films = getBasicMetadata()
+    moviejson = db.movies.find({"Title": "Fargo"}).limit(1)
+    app.logger.info(moviejson)
+    getPoster(moviejson)
+    posts = db.movies.find()
+    return render_template('home.html', genres=genres, directors=directors, posts=films)
+
 
 
 def getBasicMetadata():
@@ -243,6 +257,28 @@ def getBasicMetadata():
     # app.logger.info(gen)
     # app.logger.info(dirs)
     return gen, dirs, list(set(films))
+
+
+def getPoster(cursor):
+    for moviejson in cursor:
+        app.logger.info(moviejson)
+        if "Poster" in moviejson:
+           app.logger.info(moviejson['Poster'])
+           image = requests.get(moviejson['Poster'])
+
+           poster = str(moviejson['Poster'])
+           index = poster.rfind('.')
+           ext = poster[index + 1:]
+           name = str(moviejson['Title'])
+
+           try:
+               with open(name + '.' + ext, "wb") as code1:
+                   #app.logger.info(image.content)
+                   code1.write(image.content)
+               code1.close()
+           except:
+               pass
+    return
 
 
 def getmatch(film):
@@ -287,24 +323,7 @@ def getmatch(film):
 
     app.logger.warn(moviejson)
     app.logger.warn("Next")
-    # if "imdbRating" in moviejson:
-    #    app.logger.warn(str(moviejson['imdbRating']))
-    #    app.logger.warn(str(moviejson))
-    # if "Poster" in moviejson:
-    #    app.logger.warn(moviejson['Poster'])
-    #    image = requests.get(moviejson['Poster'])
-    #    poster = str(moviejson['Poster'])
-    #    index = poster.rfind('.')
-    #    ext = poster[index + 1:]
-    #    # name = str(moviejson.Title)
 
-    #    try:
-    #        with open(film + '.' + ext, "wb") as code1:
-    #            app.logger.warn(image.content)
-    #            code1.write(image.content)
-    #        code1.close()
-    #    except:
-    #        pass
     resultdb = db.movies.insert_one(moviejson)
     app.logger.warn("Adding New Film "+str(resultdb.inserted_id))
     # scanforfilms()
@@ -347,7 +366,7 @@ def writeConfig(json_to_write):
 
 
 def readConfig():
-    # config_file = "config.json"
+    global config_file # = "config.json"
     with open(config_file, mode='r') as out:
         input_json = json.load(out)
     out.close()

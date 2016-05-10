@@ -20,8 +20,11 @@
 
 </div>  <!-- END JUMBOTRON -->
 
+Select one or more files: <input type="file" id="input"/>
+<input type="file" id="file" onchange="readFileContent(this.files)"/>
 <div>
 <video width="640" height="480" controls="controls">
+	<!-- <source src="/Volumes/Qmultimedia/Movies/V/Vacation\ \(1983\)/Vacation\ /(1983/).avi"> -->
 	<source src="../../static/img/music-box.mp4"> <!-- type="video/mp4"> -->
 	<source src="" type="video/ogg">
 		Your browser does not support the <video> element.

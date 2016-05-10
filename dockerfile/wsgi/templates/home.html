@@ -19,8 +19,8 @@
 
 				<div class="item active">
 					<img
-						src="../../static/img/Frozen.jpg"
-						alt="Frozen"></img>
+						src="../../static/img/Fargo.jpg"
+						alt="Fargo"></img>
 				</div>
 
 				<div class="item">
@@ -32,7 +32,7 @@
 				<div class="item">
 					<img
 						src="../../static/img/Frozen.jpg"
-						alt="Frozen1"></img>
+						alt="Frozen"></img>
 				</div>
 
 				<div class="item">
@@ -143,9 +143,11 @@
 						<div class="col-sm-5">
 								<input type="text" list="someMovie" name="moviename" placeholder="Enter Movie Name"/>
 								<datalist id="someMovie"> <!--class="form-control" name="director"> -->
+									<select>
 										 {% for dir in posts|sort(reverse=False) %}
 												<option value="{{dir}}">{{dir}}</option>
 												 {% endfor %}
+											 </select>
 								</datalist>
 							<!-- <input class="form-control" type="text" name="moviename"  placeholder="Enter Movie Name"/> -->
 						</div>
@@ -191,10 +193,13 @@
 				<!-- <label for="objectID"> Search By: </label> -->
 					<input type="text" list="someDirector" name="director" placeholder="Enter Director Name"/>
 					<datalist id="someDirector"> <!--class="form-control" name="director"> -->
+						<select>
 							 {% for dir in directors|sort(reverse=False) %}
 									<option value="{{dir}}">{{dir}}</option>
 									 {% endfor %}
+								 </select>
 					</datalist>
+
 				<input type="submit" class="btn btn-primary btn-xd" value="Search"/>
 			</div>
 </form>
