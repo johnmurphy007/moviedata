@@ -2,7 +2,6 @@
 # app.py
 from flask import Flask
 from flask import request, render_template
-# , redirect, url_for, send_from_directory
 import re
 import sys
 import pymongo
@@ -12,6 +11,9 @@ import requests
 import logging
 import os
 from flask import json
+from bson.objectid import ObjectId
+import ast  # to convert unicode to dict
+import PythonWrapperScript
 
 app = Flask(__name__)
 
@@ -21,9 +23,8 @@ stream_formatter = logging.Formatter('[%(asctime)s] [%(module)s:%(lineno)d][%(le
 stream_handler.setFormatter(stream_formatter)
 app.logger.addHandler(stream_handler)
 
-# global variable
+# global variable (not used at present)
 config_file = "config.json"
-
 
 
 if ('DB_PORT_27017_TCP_ADDR' in os.environ):
@@ -35,58 +36,109 @@ client = MongoClient(host, 27017)
 db = client.movies  # db = client.primer
 
 
-@app.route('/movieinfo', methods=["POST"])
-def route_postexample():
-    app.logger.warn('/movieinfo POST url')
-    text1 = request.form['text']
-    app.logger.warn(text1)
-    posts = getmatch(text1)
-    # app.logger.warn(posts)
-    return render_template('index.html', posts=posts)
+@app.route('/', methods=["GET"])
+def route_getbase():
+    app.logger.warn('/ GET url')
+    genres, directors, films = getBasicMetadata()
+    posts = db.movies.find()
+    return render_template('home.html', genres=genres, directors=directors, posts=films)
+
+
+# Work in Progess - requires wsgi Container to have visibility on folders that videos are in.
+@app.route('/movieinfo/scan', methods=["GET"])
+def route_getmoviescan():
+    app.logger.info('/movieinfo/scan GET url')
+    PythonWrapperScript.main()
+    page = 1
+    pagesize = 25
+    skip = page * pagesize
+    posts = db.movies.find().sort(('Title'), pymongo.ASCENDING).limit(pagesize).skip(skip)
+
+    return render_template('movieinfoall.html', posts=posts, page=page)
+
+
+# @app.route('/movieinfo/delete/', methods=["GET"])
+# def route_getmoviedelete():
+#     app.logger.info('/movieinfo/delete GET url')
+#     empty = db.movies.remove({"Title":""})
+#     app.logger.info("deleted an item?")
+#
+#     page = 1
+#     pagesize = 25
+#     skip = page * pagesize
+#     posts = db.movies.find().sort(('Title'), pymongo.ASCENDING).limit(pagesize).skip(skip)
+#
+#     return render_template('movieinfoall.html', posts=posts, page=page)
+
+
+@app.route('/movieinfo/delete/<imdbid>/<page>', methods=["GET"])
+def route_getmoviedeleteimdbid(imdbid, page):
+    app.logger.info('/movieinfo/delete/<imdbid>/<page> GET url')
+
+    if imdbid:
+        app.logger.info(imdbid)
+        # Remove record:
+        post = db.movies.delete_one({'_id': ObjectId(imdbid)})
+
+    if page:
+        page = int(page)
+    else:
+        page = 1
+
+    pagesize = 25
+    skip = page * pagesize
+    posts = db.movies.find().sort(('Title'), pymongo.ASCENDING).limit(pagesize).skip(skip)
+
+    return render_template('movieinfoall.html', posts=posts, page=page)
 
 
 @app.route('/movieinfo/all', methods=["GET"])
 def route_getmovieinfoall():
-    app.logger.warn('/movieinfo/all GET url')
+    app.logger.info('/movieinfo/all GET url')
+    url = request.values  # Get value from GET(/POST) request
+    page = 1
+    if 'page' in url:
+        page = int(url['page'])
+
+    pagesize = 25
+
+    skip = page * pagesize
+    app.logger.info(skip)
+    posts = db.movies.find().sort(('Title'), pymongo.ASCENDING).limit(pagesize).skip(skip)
+
+    return render_template('movieinfoall.html', posts=posts, page=page)
+
+
+@app.route('/movieinfo/film', methods=["GET"])
+def route_getmovieinfofilm():
+    app.logger.info('/movieinfo/film GET url')
     url = request.values  # Get value from GET(/POST) request
 
     if 'moviename' in url:
-        # Get matching entries
         search = url['moviename']
-        posts = db.movies.find({'Title': {'$regex': search, "$options": "$i"}})
+        # Get matching entries
+        posts = db.movies.find({'Title': {'$regex': search, "$options": "$i"}}).sort(('Title'), pymongo.DESCENDING)
     else:
         # Get all entries
-        posts = db.movies.find().sort(('Title'), pymongo.DESCENDING).limit(10).skip(1999)
+        posts = db.movies.find().sort(('Title'), pymongo.DESCENDING)
 
-    return render_template('movieinfoall.html', posts=posts)
+    return render_template('movieinfofilm.html', posts=posts)
 
 
 @app.route('/movieinfo/genre', methods=["GET"])
 def route_getmoviegenre():
     app.logger.warn('/movieinfo/genre GET url')
     url = request.values  # Get value from GET(/POST) request
+    genres, directors, posts = getBasicMetadata()
 
     if url.keys():  # Get keys of url and add them to array
         genrelist = url.keys()
         app.logger.info(genrelist)
         search = '|'.join(genrelist)
-    app.logger.info(search)
-    posts = db.movies.find({'Genre': {'$regex': search, "$options": "$i"}})
+        app.logger.info(search)
+        posts = db.movies.find({'Genre': {'$regex': search, "$options": "$i"}}).sort(('imdbRating'), pymongo.DESCENDING)
 
-    return render_template('movieinfogenre.html', posts=posts)
-    # posts = db.movies.find({'Title': '/.*Sup.*/'})
-    # posts = db.movies.find({"Genre": {"$elemMatch": {"$eq": "Action", "$eq": "Comedy"}}})
-    # posts = db.movies.find({"$or": [{"Genre": {"$in": genrelist}}]})
-    # posts = db.movies.find({"$where": 'function() {var genre = this.Genre.split(","); for (i = 0; i < genre.length; i++) { if (genre == "Action") return this.genre; } }'})
-    # db.inventory.find( { $or: [ { quantity: { $lt: 20 } }, { price: 10 } ] })
-    # posts = db.movies.find({"Genre": "Action, Adventure, Drama"})
-    # posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
-    # posts = db.movies.find({"Genre": {"$elemMatch": {"Genre": genrelist}}})
-    # posts = db.movies.find()
-    # posts = db.movies.find({"Genre": { "$in": genrelist}})
-    # posts = db.movies.find({"Genre": { "$in": genrelist}})
-    # posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
-    # posts = db.movies.find()
+    return render_template('movieinfogenre.html', posts=posts, genres=genres)
 
 
 @app.route('/movieinfo/director', methods=["GET"])
@@ -94,28 +146,24 @@ def route_getmoviedirector():
     app.logger.warn('/movieinfo/director GET url')
 
     url = request.values  # Get value from GET(/POST) request
-
+    genres, directors, posts = getBasicMetadata()
     if 'director' in url:
         # Get matching entries
         search = url['director']
-        # search.replace('+', ' ')
         app.logger.info(search)
-        posts = db.movies.find({'Director': {'$regex': search, "$options": "$i"}})
+        posts = db.movies.find({'Director': {'$regex': search, "$options": "$i"}}).sort(('Title'), pymongo.DESCENDING)
     else:
         # Get all entries
-        posts = db.movies.find()
+        posts = db.movies.find().sort(('Title'), pymongo.DESCENDING)
 
-    return render_template('movieinfoall.html', posts=posts)
+    return render_template('movieinfodirector.html', posts=posts, directors=directors)
 
 
-# @app.route('/movieinfo/imdb/<rating>', methods=["GET"])
-# def route_getmovieimdb(rating):
 @app.route('/movieinfo/imdb', methods=["GET"])
 def route_getmovieimdb():
     app.logger.warn('/movieinfo/imdb GET url')
-    # imdbrating = rating  # float(rating)
     url = request.values  # Get value from GET(/POST) request
-    # ?optsortby=asc&optimdbrating=9.5
+
     if 'sortby' in url:
         if url['sortby'] == "asc":
             operator = "$gte"
@@ -144,75 +192,76 @@ def route_getmovieimdb():
         opt_imdbrating = url['optimdbrating']
         app.logger.warn(opt_imdbrating)
 
+    if 'sort' in url:
+        sort = url['sort']
+        app.logger.warn(sort)
     if opt_operator and opt_imdbrating:
-        posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A", opt_operator: opt_imdbrating}})
-    else:
-        posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A"}})
+        # posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A", opt_operator: opt_imdbrating}}).sort(('imdbRating'), pymongo.DESCENDING).limit(pagesize).skip(page*pagesize)
+        if sort == "DESCENDING":
+            app.logger.warn("hi")
+            posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A", opt_operator: opt_imdbrating}}).sort(('imdbRating'), pymongo.DESCENDING)
+        else:
+            app.logger.warn("he ")
+            posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A", opt_operator: opt_imdbrating}}).sort(('imdbRating'), pymongo.ASCENDING)
 
-    return render_template('movieinfoall.html', posts=posts)
+    else:
+        if sort == "DESCENDING":
+        # posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A"}}).sort(('imdbRating'), pymongo.DESCENDING).limit(pagesize).skip(page*pagesize)
+            app.logger.warn("ho ")
+            posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A"}}).sort(('imdbRating'), pymongo.DESCENDING)
+        else:
+            posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A"}}).sort(('imdbRating'), pymongo.ASCENDING)
+
+    return render_template('movieinfoimdb.html', posts=posts)
 
 
 @app.route('/movieinfo', methods=["GET"])
 def route_getexample():
-    app.logger.warn('/movieinfo GET url')
+    app.logger.info('/movieinfo GET url')
 
     url = request.values  # Get value from GET(/POST) request
-    posts = json.dumps({'text': '1234'})
-    if 'moviename' in url:
-        posts = db.movies.find({"Title": url['moviename']})
-    return render_template('index.html', posts=posts)
-
-
-@app.route('/options', methods=["GET"])
-def route_getoptions():
-    app.logger.warn('/options GET url')
-    genres, directors, posts = getBasicMetadata()
-    url = request.values  # Get value from GET(/POST) request
-    posts = {"Title": "X-men"}
     app.logger.info(url)
-    if len(url) == 1:
-        query = {}
-        value = url.values()  # Get values from dict
-        query['Genre'] = value[0]
-        posts = db.movies.find(query)
-        app.logger.info(value[0])
+
+    if 'moviename' in url:
+        posts = db.movies.find({"Title": url['moviename']}).sort(('Title'), pymongo.DESCENDING)
+        found = posts.count()
+        return render_template('index.html', posts=posts, found=found)
+
+    if url:
+        for i in url:
+            temp = url[i]  # url[i] is unicode.
+            # Strip '[' & ']' from temp, use ast to convert unicode dict string to real dict.
+            moviejson = ast.literal_eval(temp[1:len(temp)-1])
+            app.logger.info(type(moviejson))
+            app.logger.info(moviejson)
+            posts = db.movies.insert_one(moviejson)
+            posts = db.movies.find({"Title": moviejson['Title']})
+            found = 1
+            return render_template('index.html', posts=posts, found=found)
+
+    posts = json.dumps({'text': '1234'})
+    found = 0
+    return render_template('index.html', posts=posts, found=found)
+
+
+@app.route('/movieinfo', methods=["POST"])
+def route_postexample():
+    app.logger.warn('/movieinfo POST url')
+    httpsearch = request.form['text']
+    app.logger.info(httpsearch)
+    posts = db.movies.find({"Title": httpsearch})
+    if posts:
+        found = 1
+        return render_template('index.html', posts=posts, found=found)
     else:
-        query = []
-        for u in url:
-            querydict = {}
-            querydict['Genre'] = url[u]
-            query.append(querydict)
-        app.logger.info(query)
-        posts = db.movies.find({'$or': query})
-        app.logger.info(posts)
-    # query = {"Genre": "Adventure"}
-    posts = db.movies.find({"Genre": "Adventure"})
-    for f in posts:
-        app.logger.info(f)
-    # result = db.test.delete_one({'x': 1})
+        posts = getmatch(httpsearch)
+        if posts:
+            found = "yes"
+        else:
+            posts = {"Title": "X-men"}  # Dummy data
+            found = 0
 
-    # directors = getDirector()
-    return render_template('displayOptions.html', genres=genres, directors=directors, posts=posts)
-
-
-@app.route('/options', methods=["POST"])
-def route_postoptions():
-    app.logger.warn('/options POST url')
-    text1 = request.form['0']
-    app.logger.info(text1)
-    genres, directors = getGenre()
-    # directors = getDirector()
-    # bb
-    return render_template('displayOptions.html', genres=genres, directors=directors)
-
-
-@app.route('/', methods=["GET"])
-def route_getbase():
-    app.logger.warn('/ GET url')
-    #app.logger.warn(readConfig())
-    genres, directors, films = getBasicMetadata()
-    posts = db.movies.find()
-    return render_template('home.html', genres=genres, directors=directors, posts=films)
+        return render_template('index.html', posts=posts, found=found)
 
 
 @app.route('/image', methods=["GET"])
@@ -282,51 +331,19 @@ def getPoster(cursor):
 
 
 def getmatch(film):
-    # items = db.movies.find()
-    movielist = []
-    items = db.movies.find({"Title": film})
-    # app.logger.warn("Match in MongoDB found: "+str(items))
-    for item in items:
-        if "Title" in item:
-            app.logger.warn("Match in MongoDB found: "+str(item))
-            movielist.append(item)
-    if movielist:
-        return movielist
 
-    # Else, dealing with situation that no Movie match was found:
-    baseUrl = "http://www.omdbapi.com/"  # "?t=Frozen&y=&plot=short&r=json
-    # film = "Frozen"
+    movielist = []
+    baseUrl = "http://www.omdbapi.com/"
+
     try:
         r = requests.get(baseUrl + "?t="+film+"&y=&plot=long&r=json")
-        app.logger.warn(r.status_code)
+        app.logger.info(r.status_code)
         moviejson = r.json()
     except requests.exceptions.RequestException as e:
         app.logger.warn(e)
         sys.exit(1)
 
-    app.logger.warn(moviejson)
-    if "Poster" in moviejson:
-        app.logger.warn(moviejson['Poster'])
-        image = requests.get(moviejson['Poster'])
-        poster = str(moviejson['Poster'])
-        index = poster.rfind('.')
-        ext = poster[index + 1:]
-        name = str(moviejson['Title'])
-        # Get Poster Image content
-        # try:
-        #    with open(name + '.' + ext, "wb") as code1:
-        #        app.logger.warn(image.content)
-        #        code1.write(image.content)
-        #        code1.close()
-        # except:
-        #    pass
-
-    app.logger.warn(moviejson)
-    app.logger.warn("Next")
-
-    resultdb = db.movies.insert_one(moviejson)
-    app.logger.warn("Adding New Film "+str(resultdb.inserted_id))
-    # scanforfilms()
+    app.logger.info(moviejson)
     movielist.append(moviejson)
     return movielist  # str(db.users.find().pretty())
 
@@ -351,6 +368,10 @@ def getlink(full_path_file_name, return_type):
         return path
 
 
+
+###########################################
+# WIP Stuff
+###########################################
 def writeConfig(json_to_write):
     with open(config_file, mode='w') as out:
         res = json.dump(
@@ -372,3 +393,71 @@ def readConfig():
     out.close()
 
     return input_json
+
+
+@app.route('/options', methods=["GET"])
+def route_getoptions():
+    app.logger.warn('/options GET url')
+    genres, directors, posts = getBasicMetadata()
+    url = request.values  # Get value from GET(/POST) request
+    posts = {"Title": "X-men"}
+    app.logger.info(url)
+    if len(url) == 1:
+        query = {}
+        value = url.values()  # Get values from dict
+        query['Genre'] = value[0]
+        posts = db.movies.find(query).sort(('imdbRating'), pymongo.DESCENDING)
+        app.logger.info(value[0])
+    else:
+        query = []
+        for u in url:
+            querydict = {}
+            querydict['Genre'] = url[u]
+            query.append(querydict)
+        app.logger.info(query)
+        posts = db.movies.find({'$or': query}).sort(('imdbRating'), pymongo.DESCENDING)
+        app.logger.info(posts)
+
+    page = 1
+    if 'page' in url:
+        page = int(url['page'])
+
+    pagesize = 20
+    if 'pagesize' in url:
+        pagesize = str(url['pagesize'])
+    #posts = db.movies.find({"Genre": "Adventure"})
+    posts = db.movies.find().sort(('Title'), pymongo.DESCENDING).limit(pagesize).skip(page*pagesize)
+    #for f in posts:
+    #    app.logger.info(f)
+    # result = db.test.delete_one({'x': 1})
+
+    # directors = getDirector()
+    return render_template('displayOptions.html', genres=genres, directors=directors, posts=posts, page=page, pagesize=pagesize)
+
+
+@app.route('/options', methods=["POST"])
+def route_postoptions():
+    app.logger.warn('/options POST url')
+    text1 = request.form['0']
+    app.logger.info(text1)
+    genres, directors = getGenre()
+    # directors = getDirector()
+    # bb
+    return render_template('displayOptions.html', genres=genres, directors=directors)
+
+    # List of reference accesses via pymongo that I've tried:
+    # posts = db.movies.find({'Title': '/.*Sup.*/'})
+    # posts = db.movies.find({"Genre": {"$elemMatch": {"$eq": "Action", "$eq": "Comedy"}}})
+    # posts = db.movies.find({"$or": [{"Genre": {"$in": genrelist}}]})
+    # posts = db.movies.find({"$where": 'function() {var genre = this.Genre.split(","); for (i = 0; i < genre.length; i++) { if (genre == "Action") return this.genre; } }'})
+    # db.inventory.find( { $or: [ { quantity: { $lt: 20 } }, { price: 10 } ] })
+    # posts = db.movies.find({"Genre": "Action, Adventure, Drama"})
+    # posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
+    # posts = db.movies.find({"Genre": {"$elemMatch": {"Genre": genrelist}}})
+    # posts = db.movies.find()
+    # posts = db.movies.find({"Genre": { "$in": genrelist}})
+    # posts = db.movies.find({"Genre": { "$in": genrelist}})
+    # posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
+    # posts = db.movies.find()
+    # resultdb = db.movies.insert_one(moviejson)
+    # moviejson = db.movies.find({"Title": "Fargo"}).limit(1)

@@ -8,9 +8,9 @@
 	<div class="row">
 		<div class="col-sm-12">
 			<h3>Choose from <span>{{genres|length}}</span> Movies in the library. Search by:
-				<a href="/browse/listall/objects/1/10">imdb Rating</a>,
-				<a href="/browse/listall/participants/1/10">Movie Name<span class="badge">{{genres|length}}</span></a>,
-				<a href="/browse/listall/roles/1/10">genre<span class="badge">{{genres|length}}</span></a> or
+				<a href="1/10">imdb Rating</a>,
+				<a href="1/10">Movie Name<span class="badge">{{genres|length}}</span></a>,
+				<a href="1/10">genre<span class="badge">{{genres|length}}</span></a> or
 				<a href="/browse/listall/roles/1/10">Director<span class="badge">{{directors|length}}</span></a>
 			</h3>
 		</div>
@@ -19,6 +19,25 @@
 	</div>
 
 </div>  <!-- END JUMBOTRON -->
+<div class="container">
+  <h2>Pagination</h2>
+  <p>The .pagination class provides pagination links:</p>
+  <ul class="pagination">
+		<label for="objectID">Select Page Size </label>
+	<select class="form-control" name="pagesize">
+		<option selected value="all"> all </option>
+		<option value="10"> 10 </option>
+		<option value="25"> 25 </option>
+		<option value="50"> 50 </option>
+	</select>
+    <li><a href="?page={{page}}">{{page}} </a></li>
+    <li><a href="?page={{page + 1}}&pagesize={{pagesize}}">{{page + 1}}</a></li>
+    <li><a href="?page={{page + 2}}&pagesize={{pagesize}}">{{page + 2}}</a></li>
+    <li><a href="?page={{page + 3}}&pagesize={{pagesize}}">{{page + 3}}</a></li>
+    <li><a href="?page={{page + 4}}&pagesize={{pagesize}}">{{page + 4}}</a></li>
+  </ul>
+</div>
+
 
 Select one or more files: <input type="file" id="input"/>
 <input type="file" id="file" onchange="readFileContent(this.files)"/>
@@ -62,13 +81,13 @@ Select one or more files: <input type="file" id="input"/>
 <input type="submit" value="Get Matching Movies"></input>
 </form>
 
-
+<!--
 	<h2>Directors:</h2>
 {% for director in directors %}
 <p>{{director}}</p>
 
 
-{% endfor %}
+{% endfor %} -->
 
 <div class="container">
 	<h3><font color="RED" text="${message}"></font></h3>

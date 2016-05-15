@@ -11,6 +11,62 @@
   <hr>
 
 
+	<label for="objectID">Quick Re-query by imdb Rating</label>
+  <!-- Adding quick re-query based on imdb rating -->
+  <form role="form" action="/movieinfo/imdb" method="get">
+  				<div class="form-group">
+
+  					<div class="row">
+  						<div class="col-sm-2">
+  							<label for="objectID">&emsp;</label>
+  							<select class="form-control" name="sortby">
+  								<option selected value="asc"> >= </option>
+  								<option value="equal"> = </option>
+  								<option value="desc"> <= </option>
+  							</select>
+  						</div>
+
+  						<div class="col-sm-2">
+  								<label for="objectID">&emsp;</label>
+  							<select id="someSelect" class="form-control" name="imdbrating">
+  											<!-- Javascript inserts options -->
+  							</select>
+  						</div>
+  						<!-- <div class="col-sm-1"></div> -->
+  						<div class="col-sm-2">
+  								<label for="objectID">Optional </label>
+  							<select class="form-control" name="optsortby">
+  								<option selected value=""> </option>
+  								<option value="asc"> >= </option>
+  								<option value="equal"> = </option>
+  								<option value="desc"> <= </option>
+  							</select>
+  						</div>
+
+  						<div class="col-sm-2">
+  								<label for="objectID">Optional </label>
+  							<select id="optsomeSelect" class="form-control" name="optimdbrating">
+  											<!-- Javascript inserts options -->
+  							</select>
+  						</div>
+
+              <div class="col-sm-2">
+                <label>Results sorted by:</label>
+                <select class="form-control" name="sort">
+                  <option  value="ASCENDING">Ascending</option>
+            <option selected value="DESCENDING">Descending</option>
+            </select>
+            </div>
+  						<div class="col-sm-2">
+  							<label for="objectID">&emsp; </label>
+  							<input type="submit" class="btn btn-primary btn-xd" value="Search"></input>
+  						</div>
+  					</div>
+  				</div>
+  	<!-- <button type="submit" class="btn btn-primary btn-xd">Search</input> -->
+  </form>
+
+
   <div class="input-group"> <span class="input-group-addon">Filter</span>
       <input id="filter" type="text" class="form-control" placeholder="Type here...">
   </div>
@@ -48,8 +104,7 @@
          <td><h4><strong>{{post.Director}}</strong></h4></td>
          <td><h4><strong>{{post.Language}}</strong></h4></td>
          <td><h4><strong>{{post.Type}}</strong></h4></td>
-        <td><a href="/movieinfo/delete/{{post._id}}/{{page}}" class="btn btn-primary btn-xs">Delete</a></td>
-         <!-- <button ><div class="arrow"></div></strong> -->
+         <!-- <td><strong><div class="arrow"></div></strong></td> -->
      </tr>
      <tr>
          <td colspan="10">
@@ -70,18 +125,6 @@
     {% endfor %}
   </tbody>
    </table>
-
-   <div class="container">
-     <ul class="pagination">
-       <li><a href="?page=1">First</a></li>
-       <li><a href="?page={{page - 1}}">Prev</a></li>
-       <li><a href="?page={{page}}">{{page}}</a></li>
-       <li><a href="?page={{page + 1}}">{{page + 1}}</a></li>
-       <li><a href="?page={{page + 2}}">{{page + 2}}</a></li>
-       <li><a href="?page={{page + 3}}">{{page + 3}}</a></li>
-       <li><a href="?page={{page + 4}}">{{page + 4}}</a></li>
-     </ul>
-   </div>
 
 </div>
 

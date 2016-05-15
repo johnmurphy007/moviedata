@@ -27,6 +27,10 @@ stream_formatter = logging.Formatter('[%(asctime)s] [%(module)s:%(lineno)d] [%(l
 stream_handler.setFormatter(stream_formatter)
 app.logger.addHandler(stream_handler)
 
+# global variable
+config_file = "config.json"
+
+
 if ('DB_PORT_27017_TCP_ADDR' in os.environ):
     host = os.environ['DB_PORT_27017_TCP_ADDR']
 else:
@@ -58,7 +62,8 @@ def searchformovies(path):
                         index = path.rfind('/')
                     naspath = prepend + path[len(remove):index]
                     result.append(naspath)
-    return set(result)
+    scannedmovies = set(result)
+    return scannedmovies
 
 
 def processdir(dirname):
@@ -101,47 +106,47 @@ def getfilmdata(film, year, fullpathtomovie):
 
     try:
         r = requests.get(baseUrl + "?t="+film+"&y="+year+"&plot=full&r=json")
-        app.logger.warn(r.status_code)
+        app.logger.info(r.status_code)
         moviejson = r.json()  # capture json data
     except requests.exceptions.RequestException as e:
         app.logger.warn(e)
 
     if r.status_code == 200:
-        print "Match found on omdbapi"
+        app.logger.info("Match found on omdbapi")
         moviejson['naslocation'] = fullpathtomovie
         resultdb = db.movies.insert_one(moviejson)
-        app.logger.warn("Adding New Film "+str(resultdb.inserted_id))
+        app.logger.info("Adding New Film "+str(resultdb.inserted_id))
         return None
     return fullpathtomovie
 
 
 def main():
-    program = sys.argv[0]
-#    if len(sys.argv) != 3:
-#        sys.stderr.write("Usage: %s path_to_parse\n" % program)
-#        sys.exit(1)
-    movies = searchformovies("/Volumes/Qmultimedia/Movies/V/")
-    print movies
+
+    configjson = readConfig()
+    path_to_search = configjson['path_to_search']
+    app.logger.info(path_to_search)
+
+    movies = searchformovies(path_to_search)
+    #app.logger.info(movies)
+
     movielisterror = []
     for movie in movies:
         name, year = processdir(movie)
-        print name, year
+        app.logger.info(name)
+        app.logger.info(year)
         # Check for match in MongoDB:
         if year:
             _items = db.movies.find_one({"Title": name, "Year": year})
         else:
             _items = db.movies.find_one({"Title": name})
 
-        print "Next"
 #        db.movies.delete_one({"Title": name})
         if _items is None:
             newfilmresult = getfilmdata(name, year, movie)
             if newfilmresult is not None:
                 movielisterror.append(newfilmresult)
         else:
-            print _items
-            for item in _items:
-                print item
+            app.logger.info("Film in database already")
 
     if movielisterror:
         try:
@@ -149,11 +154,32 @@ def main():
                 outfile.writelines(errorfile)
             outfile.close()
         except EnvironmentError:
-            print('error writing to file')
+            app.logger.warn('error writing to file')
     return
 
-    # getmatch()
+
+def writeConfig(json_to_write):
+    with open(config_file, mode='w') as out:
+        res = json.dump(
+            json_to_write,
+            out,
+            sort_keys=True,
+            indent=4,
+            separators=(
+                ',',
+                ': '))
+    out.close()
     return
+
+
+def readConfig():
+    global config_file # = "config.json"
+    with open(config_file, mode='r') as out:
+        input_json = json.load(out)
+    out.close()
+
+    return input_json
+
 
 if __name__ == '__main__':
     main()

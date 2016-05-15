@@ -9,8 +9,23 @@
   <h1>Movie MetaData</h1>
   <br>
   <hr>
+  <div class="panel-body">
+<form role="form" action="/movieinfo/director" method="get">
+    <div class="form-group">
+      <!-- <label for="objectID"> Search By: </label> -->
+        <input type="text" list="someDirector" name="director" placeholder="Enter Director Name"/>
+        <datalist id="someDirector"> <!--class="form-control" name="director"> -->
+          <select>
+             {% for dir in directors|sort(reverse=False) %}
+                <option value="{{dir}}">{{dir}}</option>
+                 {% endfor %}
+               </select>
+        </datalist>
 
-
+      <input type="submit" class="btn btn-primary btn-xd" value="Search"/>
+    </div>
+</form>
+  </div>
   <div class="input-group"> <span class="input-group-addon">Filter</span>
       <input id="filter" type="text" class="form-control" placeholder="Type here...">
   </div>
@@ -48,8 +63,7 @@
          <td><h4><strong>{{post.Director}}</strong></h4></td>
          <td><h4><strong>{{post.Language}}</strong></h4></td>
          <td><h4><strong>{{post.Type}}</strong></h4></td>
-        <td><a href="/movieinfo/delete/{{post._id}}/{{page}}" class="btn btn-primary btn-xs">Delete</a></td>
-         <!-- <button ><div class="arrow"></div></strong> -->
+         <!-- <td><strong><div class="arrow"></div></strong></td> -->
      </tr>
      <tr>
          <td colspan="10">
@@ -70,18 +84,6 @@
     {% endfor %}
   </tbody>
    </table>
-
-   <div class="container">
-     <ul class="pagination">
-       <li><a href="?page=1">First</a></li>
-       <li><a href="?page={{page - 1}}">Prev</a></li>
-       <li><a href="?page={{page}}">{{page}}</a></li>
-       <li><a href="?page={{page + 1}}">{{page + 1}}</a></li>
-       <li><a href="?page={{page + 2}}">{{page + 2}}</a></li>
-       <li><a href="?page={{page + 3}}">{{page + 3}}</a></li>
-       <li><a href="?page={{page + 4}}">{{page + 4}}</a></li>
-     </ul>
-   </div>
 
 </div>
 
