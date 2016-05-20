@@ -13,7 +13,7 @@ import os
 from flask import json
 from bson.objectid import ObjectId
 import ast  # to convert unicode to dict
-import PythonWrapperScript
+import scanForFilms
 
 app = Flask(__name__)
 
@@ -38,7 +38,7 @@ db = client.movies  # db = client.primer
 
 @app.route('/', methods=["GET"])
 def route_getbase():
-    app.logger.warn('/ GET url')
+    app.logger.info('/ GET url')
     genres, directors, films = getBasicMetadata()
     posts = db.movies.find()
     return render_template('home.html', genres=genres, directors=directors, posts=films)
@@ -48,7 +48,8 @@ def route_getbase():
 @app.route('/movieinfo/scan', methods=["GET"])
 def route_getmoviescan():
     app.logger.info('/movieinfo/scan GET url')
-    PythonWrapperScript.main()
+    # Call scanForFilms to scan/add movies to mongodB:
+    scanForFilms.main()
     page = 1
     pagesize = 25
     skip = page * pagesize
@@ -127,7 +128,7 @@ def route_getmovieinfofilm():
 
 @app.route('/movieinfo/genre', methods=["GET"])
 def route_getmoviegenre():
-    app.logger.warn('/movieinfo/genre GET url')
+    app.logger.info('/movieinfo/genre GET url')
     url = request.values  # Get value from GET(/POST) request
     genres, directors, posts = getBasicMetadata()
 
@@ -143,7 +144,7 @@ def route_getmoviegenre():
 
 @app.route('/movieinfo/director', methods=["GET"])
 def route_getmoviedirector():
-    app.logger.warn('/movieinfo/director GET url')
+    app.logger.info('/movieinfo/director GET url')
 
     url = request.values  # Get value from GET(/POST) request
     genres, directors, posts = getBasicMetadata()
@@ -161,7 +162,7 @@ def route_getmoviedirector():
 
 @app.route('/movieinfo/imdb', methods=["GET"])
 def route_getmovieimdb():
-    app.logger.warn('/movieinfo/imdb GET url')
+    app.logger.info('/movieinfo/imdb GET url')
     url = request.values  # Get value from GET(/POST) request
 
     if 'sortby' in url:
@@ -184,30 +185,27 @@ def route_getmovieimdb():
         elif url['optsortby'] == "equal":
             opt_operator = "$eq"
         if opt_operator:
-            app.logger.warn(opt_operator)
+            app.logger.info(opt_operator)
         else:
             app.logger.warn("Not defined!")
 
     if 'optimdbrating' in url:
         opt_imdbrating = url['optimdbrating']
-        app.logger.warn(opt_imdbrating)
+        app.logger.info(opt_imdbrating)
 
     if 'sort' in url:
         sort = url['sort']
-        app.logger.warn(sort)
+        app.logger.info(sort)
     if opt_operator and opt_imdbrating:
         # posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A", opt_operator: opt_imdbrating}}).sort(('imdbRating'), pymongo.DESCENDING).limit(pagesize).skip(page*pagesize)
         if sort == "DESCENDING":
-            app.logger.warn("hi")
             posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A", opt_operator: opt_imdbrating}}).sort(('imdbRating'), pymongo.DESCENDING)
         else:
-            app.logger.warn("he ")
             posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A", opt_operator: opt_imdbrating}}).sort(('imdbRating'), pymongo.ASCENDING)
 
     else:
         if sort == "DESCENDING":
         # posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A"}}).sort(('imdbRating'), pymongo.DESCENDING).limit(pagesize).skip(page*pagesize)
-            app.logger.warn("ho ")
             posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A"}}).sort(('imdbRating'), pymongo.DESCENDING)
         else:
             posts = db.movies.find({"imdbRating": {operator: imdbrating, "$ne": "N/A"}}).sort(('imdbRating'), pymongo.ASCENDING)
@@ -246,11 +244,12 @@ def route_getexample():
 
 @app.route('/movieinfo', methods=["POST"])
 def route_postexample():
-    app.logger.warn('/movieinfo POST url')
+    app.logger.info('/movieinfo POST url')
     httpsearch = request.form['text']
     app.logger.info(httpsearch)
     posts = db.movies.find({"Title": httpsearch})
-    if posts:
+    app.logger.info(posts.count())
+    if posts.count() > 0:
         found = 1
         return render_template('index.html', posts=posts, found=found)
     else:
@@ -285,26 +284,20 @@ def getBasicMetadata():
     for film in alltype:
         if "Genre" in film:
             genrefile = film['Genre'].split(",")
-            # app.logger.warn(genrefile)
             for i in genrefile:
-                # app.logger.info(i.strip())
                 genres.append(i.strip())
 
         if "Director" in film:
             dirfile = film['Director'].split(",")
-            # app.logger.warn(dirfile)
             for i in dirfile:
-                # app.logger.info(i.strip())
                 directors.append(i.strip())
 
         if "Title" in film:
             films.append(film['Title'])
 
-    # app.logger.info("Final")
     gen = list(set(genres))
     dirs = list(set(directors))
-    # app.logger.info(gen)
-    # app.logger.info(dirs)
+
     return gen, dirs, list(set(films))
 
 
@@ -397,7 +390,7 @@ def readConfig():
 
 @app.route('/options', methods=["GET"])
 def route_getoptions():
-    app.logger.warn('/options GET url')
+    app.logger.info('/options GET url')
     genres, directors, posts = getBasicMetadata()
     url = request.values  # Get value from GET(/POST) request
     posts = {"Title": "X-men"}
@@ -437,7 +430,7 @@ def route_getoptions():
 
 @app.route('/options', methods=["POST"])
 def route_postoptions():
-    app.logger.warn('/options POST url')
+    app.logger.info('/options POST url')
     text1 = request.form['0']
     app.logger.info(text1)
     genres, directors = getGenre()

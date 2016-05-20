@@ -20,11 +20,18 @@
 
 <div>
   {% if found is sameas "yes" %}
-  Found = {{found}}
-    <td><a href="/movieinfo?add={{posts}}" class="btn btn-primary btn-lg btn-block" method="GET">Add to Database</a></td>
+  <!-- Found = {{found}} -->
+    <td><a href="/movieinfo?add={{posts}}" class="btn btn-primary btn-lg" method="GET">Add to Database</a></td>
+
   {% endif %}
 
+
   {% for post in posts %}
+
+    {% if found > 0 %}
+    <td><a href="/movieinfo/delete/{{post._id}}/1" class="btn btn-primary btn-lg">Delete</a></td>
+    {% endif %}
+
     <h4 class="well"><strong>Title: {{post.Title}}</strong></h4>
     <h4 class="well"><strong>IMDB Rating: {{post.imdbRating}}</strong></h4>
     <h4 class="well"><strong>Genre: {{post.Genre}}</strong></h4>

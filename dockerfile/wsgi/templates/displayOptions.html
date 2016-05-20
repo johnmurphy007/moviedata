@@ -3,216 +3,221 @@
 {% block title %}Options{% endblock %}
 
 {% block content %}
-	<div class="jumbotron">
+<div class="jumbotron">
 	<div class="container">
-	<div class="row">
-		<div class="col-sm-12">
-			<h3>Choose from <span>{{genres|length}}</span> Movies in the library. Search by:
-				<a href="1/10">imdb Rating</a>,
-				<a href="1/10">Movie Name<span class="badge">{{genres|length}}</span></a>,
-				<a href="1/10">genre<span class="badge">{{genres|length}}</span></a> or
-				<a href="/browse/listall/roles/1/10">Director<span class="badge">{{directors|length}}</span></a>
-			</h3>
+		<div class="row">
+			<div class="col-sm-12">
+				<h3>Choose from <span>{{genres|length}}</span> Movies in the library. Search by:
+					<a href="1/10">imdb Rating</a>,
+					<a href="1/10">Movie Name<span class="badge">{{genres|length}}</span></a>,
+					<a href="1/10">genre<span class="badge">{{genres|length}}</span></a> or
+					<a href="/browse/listall/roles/1/10">Director<span class="badge">{{directors|length}}</span></a>
+				</h3>
+			</div>
 		</div>
-	</div>
 
 	</div>
 
 </div>  <!-- END JUMBOTRON -->
+
+<div id="alphabet">
+</div>
+
+
 <div class="container">
-  <h2>Pagination</h2>
-  <p>The .pagination class provides pagination links:</p>
-  <ul class="pagination">
+	<h2>Pagination</h2>
+	<p>The .pagination class provides pagination links:</p>
+	<ul class="pagination">
 		<label for="objectID">Select Page Size </label>
-	<select class="form-control" name="pagesize">
-		<option selected value="all"> all </option>
-		<option value="10"> 10 </option>
-		<option value="25"> 25 </option>
-		<option value="50"> 50 </option>
-	</select>
-    <li><a href="?page={{page}}">{{page}} </a></li>
-    <li><a href="?page={{page + 1}}&pagesize={{pagesize}}">{{page + 1}}</a></li>
-    <li><a href="?page={{page + 2}}&pagesize={{pagesize}}">{{page + 2}}</a></li>
-    <li><a href="?page={{page + 3}}&pagesize={{pagesize}}">{{page + 3}}</a></li>
-    <li><a href="?page={{page + 4}}&pagesize={{pagesize}}">{{page + 4}}</a></li>
-  </ul>
+		<select class="form-control" name="pagesize">
+			<option selected value="all"> all </option>
+			<option value="10"> 10 </option>
+			<option value="25"> 25 </option>
+			<option value="50"> 50 </option>
+		</select>
+		<li><a href="?page={{page}}">{{page}} </a></li>
+		<li><a href="?page={{page + 1}}&pagesize={{pagesize}}">{{page + 1}}</a></li>
+		<li><a href="?page={{page + 2}}&pagesize={{pagesize}}">{{page + 2}}</a></li>
+		<li><a href="?page={{page + 3}}&pagesize={{pagesize}}">{{page + 3}}</a></li>
+		<li><a href="?page={{page + 4}}&pagesize={{pagesize}}">{{page + 4}}</a></li>
+	</ul>
 </div>
 
 
 Select one or more files: <input type="file" id="input"/>
 <input type="file" id="file" onchange="readFileContent(this.files)"/>
 <div>
-<video width="640" height="480" controls="controls">
-	<!-- <source src="/Volumes/Qmultimedia/Movies/V/Vacation\ \(1983\)/Vacation\ /(1983/).avi"> -->
-	<source src="../../static/img/music-box.mp4"> <!-- type="video/mp4"> -->
-	<source src="" type="video/ogg">
-		Your browser does not support the <video> element.
-</video>
-</div>
+	<video width="640" height="480" controls="controls">
+		<!-- <source src="/Volumes/Qmultimedia/Movies/V/Vacation\ \(1983\)/Vacation\ /(1983/).avi"> -->
+		<source src="../../static/img/music-box.mp4"> <!-- type="video/mp4"> -->
+			<source src="" type="video/ogg">
+				Your browser does not support the <video> element.
+				</video>
+			</div>
 
-<h2>ImdB Rating:</h2>
-<form>
- <input type="range" name="imdb" min="3" max="10">
-</form>
+			<h2>ImdB Rating:</h2>
+			<form>
+				<input type="range" name="imdb" min="3" max="10">
+			</form>
 
-<select>
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-</select>
-<div>
-	<h1>DISPLAY FILMS</h1>
-	{% set count = 0 %}
-{% for post in posts %}
-	  <p>{{post.Title}}</p>
-		{{post.Genre}} {{count}}
-		{% set count = count + 1 %}
-{% endfor %}
----------
-</div>
-
-
-<h2>Genre:</h2>
-{% set count = 0 %}
-<form action="/options" method="get">
-{% for genre in genres|sort(reverse=False) %}
-<input type="checkbox" name="genre" value="{{genre}}"> {{genre}} </input>
-  {% set count = count + 1 %}
-	{% endfor %}
-<input type="submit" value="Get Matching Movies"></input>
-</form>
-
-<!--
-	<h2>Directors:</h2>
-{% for director in directors %}
-<p>{{director}}</p>
+			<select>
+				<option value="volvo">Volvo</option>
+				<option value="saab">Saab</option>
+			</select>
+			<div>
+				<h1>DISPLAY FILMS</h1>
+				{% set count = 0 %}
+				{% for post in posts %}
+				<p>{{post.Title}}</p>
+				{{post.Genre}} {{count}}
+				{% set count = count + 1 %}
+				{% endfor %}
+				---------
+			</div>
 
 
-{% endfor %} -->
+			<h2>Genre:</h2>
+			{% set count = 0 %}
+			<form action="/options" method="get">
+				{% for genre in genres|sort(reverse=False) %}
+				<input type="checkbox" name="genre" value="{{genre}}"> {{genre}} </input>
+				{% set count = count + 1 %}
+				{% endfor %}
+				<input type="submit" value="Get Matching Movies"></input>
+			</form>
 
-<div class="container">
-	<h3><font color="RED" text="${message}"></font></h3>
+			<!--
+			<h2>Directors:</h2>
+			{% for director in directors %}
+			<p>{{director}}</p>
 
-<form action="#" method="post"  object="${searchoptions}" action="/browse/" role="form">
 
+			{% endfor %} -->
 
+			<div class="container">
+				<h3><font color="RED" text="${message}"></font></h3>
+
+				<form action="#" method="post"  object="${searchoptions}" action="/browse/" role="form">
 
 
 
-  <h2>Choose Search Criteria</h2>
-  <div class="panel-group" id="accordion">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-       <a data-toggle="collapse" id="collapse11" data-parent="#accordion" href="#collapse1">imdb Rating</a>
-        </h3>
-      </div>
-      <div id="collapse1" class="panel-collapse collapse in">
-        <div class="panel-body">
-        		<div class="form-group">
-        		<label for="objectID"> Search By: </label>
-		<select th:field="*{string2}" class="form-control" name="searchoptions">
-	    	<option value="title">Search by Title</option>
-	    	<option value="id">Search by Object ID</option>
-	    	<option value="medium">Search by Medium</option>
-	    	<option value="creditline">Search by CreditLine</option>
-	    	<option value="description">Search by Description</option>
-	    	<option value="images">Search by Images</option>
-	    </select>
-	    <p> </p>
-   <input class="form-control"  id="searchsource" th:field="*{string6}" type="hidden" name="searchsource" />
-             <input class="form-control"  th:field="*{string3}" type="text" name="searchinfo"  placeholder="Enter Search Criteria"/>
-             <p> </p>
-                        <input  type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
-                     </div>
-                     </div>
-      </div>
-    </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" id="collapse22" data-parent="#accordion" href="#collapse2">Movie Name</a>
-        </h3>
-      </div>
-      <div id="collapse2" class="panel-collapse collapse">
-        <div class="panel-body">
-		<div class="form-group">
-				<label for="objectID"> Movie Name : </label>
-					<input class="form-control" th:field="*{string4}" type="text" name="personid"  placeholder="Enter Movie Name"/>
-            <p> </p>
-                   <input   type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
-    </div>
+
+
+					<h2>Choose Search Criteria</h2>
+					<div class="panel-group" id="accordion">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">
+									<a data-toggle="collapse" id="collapse11" data-parent="#accordion" href="#collapse1">imdb Rating</a>
+								</h3>
+							</div>
+							<div id="collapse1" class="panel-collapse collapse in">
+								<div class="panel-body">
+									<div class="form-group">
+										<label for="objectID"> Search By: </label>
+										<select th:field="*{string2}" class="form-control" name="searchoptions">
+											<option value="title">Search by Title</option>
+											<option value="id">Search by Object ID</option>
+											<option value="medium">Search by Medium</option>
+											<option value="creditline">Search by CreditLine</option>
+											<option value="description">Search by Description</option>
+											<option value="images">Search by Images</option>
+										</select>
+										<p> </p>
+										<input class="form-control"  id="searchsource" th:field="*{string6}" type="hidden" name="searchsource" />
+										<input class="form-control"  th:field="*{string3}" type="text" name="searchinfo"  placeholder="Enter Search Criteria"/>
+										<p> </p>
+										<input  type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">
+									<a data-toggle="collapse" id="collapse22" data-parent="#accordion" href="#collapse2">Movie Name</a>
+								</h3>
+							</div>
+							<div id="collapse2" class="panel-collapse collapse">
+								<div class="panel-body">
+									<div class="form-group">
+										<label for="objectID"> Movie Name : </label>
+										<input class="form-control" th:field="*{string4}" type="text" name="personid"  placeholder="Enter Movie Name"/>
+										<p> </p>
+										<input   type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">
+									<a data-toggle="collapse" id="collapse33" data-parent="#accordion" href="#collapse3">Genre</a>
+								</h3>
+							</div>
+							<div id="collapse3" class="panel-collapse collapse">
+								<div class="panel-body"><div class="form-group">
+									<label for="objectID"> Genre: </label>
+									<input class="form-control" th:field="*{string5}"  type="text" name="rolename"  placeholder="Enter Genre Name"/>
+									<p> </p>
+									<input   type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+								</div>
+
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">
+								<a data-toggle="collapse" id="collapse44" data-parent="#accordion" href="#collapse4">Director</a>
+							</h3>
+						</div>
+						<div id="collapse4" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="form-group">
+									<label for="objectID"> Search By: </label>
+									<select th:field="*{string7}" class="form-control" name="searchoptions">
+										<option value="crowdsourcing">Directors Name</option>
+										<option value="comments">User comments</option>
+										<option value="tagwords">Tag Words</option>
+									</select>
+									<p> </p>
+									<input class="form-control"  th:field="*{string8}" type="text" name="searchinfo"  placeholder="Enter Director Name"/>
+									<p> </p>
+									<input type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-12">
+						<h3>Return Results:</h3>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-6">
+						<label>Number of results per page:</label>
+						<select th:field="*{int1}" class="form-control" name="itemsperpage" >
+							<option value="10">10 items per page</option>
+							<option value="25">25 items per page</option>
+							<option value="50">50 items per page</option>
+						</select>
+
+
+					</div>
+					<div class="col-sm-6">
+						<label>Results sorted by:</label>
+						<select th:field="*{string1}" class="form-control" name="orderofresults">
+							<option value="ASC">Sort Results in Ascending order</option>
+							<option value="DESC">Sort Results in Descending order</option>
+						</select>
+					</div>
+
+				</div>
+
+			</form>
 		</div>
-      </div>
-    </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" id="collapse33" data-parent="#accordion" href="#collapse3">Genre</a>
-        </h3>
-      </div>
-      <div id="collapse3" class="panel-collapse collapse">
-        <div class="panel-body"><div class="form-group">
-				<label for="objectID"> Genre: </label>
-				<input class="form-control" th:field="*{string5}"  type="text" name="rolename"  placeholder="Enter Genre Name"/>
-            <p> </p>
-                   <input   type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
-    </div>
-
-    </div>
-      </div>
-    </div>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-       <a data-toggle="collapse" id="collapse44" data-parent="#accordion" href="#collapse4">Director</a>
-        </h3>
-      </div>
-      <div id="collapse4" class="panel-collapse collapse">
-        <div class="panel-body">
-        		<div class="form-group">
-        		<label for="objectID"> Search By: </label>
-		<select th:field="*{string7}" class="form-control" name="searchoptions">
-	    	<option value="crowdsourcing">Directors Name</option>
-	    	<option value="comments">User comments</option>
-	    	<option value="tagwords">Tag Words</option>
-	    </select>
-	    <p> </p>
-             <input class="form-control"  th:field="*{string8}" type="text" name="searchinfo"  placeholder="Enter Director Name"/>
-             <p> </p>
-                        <input type="submit" class="btn btn-primary btn-xd" value="Search"  th:value="'Search'"/>
-                     </div>
-                     </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-	<div class="col-sm-12">
-	<h3>Return Results:</h3>
-	</div>
-	</div>
-
-  <div class="row">
-	<div class="col-sm-6">
-	<label>Number of results per page:</label>
-	    <select th:field="*{int1}" class="form-control" name="itemsperpage" >
-	    	<option value="10">10 items per page</option>
-	    	<option value="25">25 items per page</option>
-	    	<option value="50">50 items per page</option>
-	    	</select>
-
-
-        </div>
-        	<div class="col-sm-6">
-        		<label>Results sorted by:</label>
-	    <select th:field="*{string1}" class="form-control" name="orderofresults">
-	    	<option value="ASC">Sort Results in Ascending order</option>
-	    	<option value="DESC">Sort Results in Descending order</option>
-	    	</select>
-        </div>
-
-</div>
-
-  </form>
-</div>
-{% endblock %}
+		{% endblock %}

@@ -1,8 +1,19 @@
 {
-  "path_to_search": "/Volumes/Qmultimedia/Movies/V/",
   "host": "192.168.99.100",
-  "port": "8000",
-  "prepend": "/Volumes",
-  "preremove": "/XXXXXXXXXX"
+  "movie_file_format": {
+    "avi": "/",
+    "mov": "/",
+    "mp4": "/",
+    "mkv": "/",
+    "ogg": "/",
+    "mwv": "/",
+    "mp2": "/",
+    "VOB": "/VIDEO_TS"
+    },
+  "path_to_search": "/Users/john/Documents/",
+  "osmc_endpoint": {
+    "name": "TV Room",
+    "ip": "192.168.1.163",
+    "port": "80"
+  }
 }
- 

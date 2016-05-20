@@ -10,80 +10,81 @@
   <br>
   <hr>
   <div class="panel-body">
-<form role="form" action="/movieinfo/director" method="get">
-    <div class="form-group">
-      <!-- <label for="objectID"> Search By: </label> -->
+    <form role="form" action="/movieinfo/director" method="get">
+      <div class="form-group">
+        <!-- <label for="objectID"> Search By: </label> -->
         <input type="text" list="someDirector" name="director" placeholder="Enter Director Name"/>
         <datalist id="someDirector"> <!--class="form-control" name="director"> -->
           <select>
-             {% for dir in directors|sort(reverse=False) %}
-                <option value="{{dir}}">{{dir}}</option>
-                 {% endfor %}
-               </select>
+            {% for dir in directors|sort(reverse=False) %}
+            <option value="{{dir}}">{{dir}}</option>
+            {% endfor %}
+          </select>
         </datalist>
 
-      <input type="submit" class="btn btn-primary btn-xd" value="Search"/>
-    </div>
-</form>
+        <input type="submit" class="btn btn-primary btn-xd" value="Search"/>
+      </div>
+    </form>
   </div>
   <div class="input-group"> <span class="input-group-addon">Filter</span>
-      <input id="filter" type="text" class="form-control" placeholder="Type here...">
+    <input id="filter" type="text" class="form-control" placeholder="Type here...">
   </div>
-<br>
+  <br>
   <!-- <table class="table table-striped"> -->
   <!--
   <table id="report" class="table tablesorter searchable sortable"> -->
   <table id="report" class="table table-striped">
     <thead>
-     <tr>
-         <th><h4><strong>Title</strong></h4></th>
-         <th><h4><strong>IMDB Rating</strong></h4></th>
-         <th><h4><strong>Genre</strong></h4></th>
-         <th><h4><strong>Year</strong></h4></th>
-         <th><h4><strong>Runtime</strong></h4></th>
-         <th><h4><strong>Actors</strong></h4></th>
-         <th><h4><strong>Awards</strong></h4></th>
-         <th><h4><strong>Director</strong></h4></th>
-         <th><h4><strong>Language</strong></h4></th>
-         <th><h4><strong>Type</strong></h4></th>
-         <th></th>
-     </tr>
-   </thead>
-   <tbody>
-  <!-- if no posts then display message here instead of table below ('None') -->
-       {% for post in posts %}
-     <tr class="searchable">
-         <td><h4><strong>{{post.Title}}</strong></h4></td>
-         <td><h4><strong>{{post.imdbRating}}</strong></h4></td>
-         <td><h4><strong>{{post.Genre}}</strong></h4></td>
-         <td><h4><strong>{{post.Year}}</strong></h4></td>
-         <td><h4><strong>{{post.Runtime}}</strong></h4></td>
-         <td><h4><strong>{{post.Actors}}</strong></h4></td>
-         <td><h4><strong>{{post.Awards}}</strong></h4></td>
-         <td><h4><strong>{{post.Director}}</strong></h4></td>
-         <td><h4><strong>{{post.Language}}</strong></h4></td>
-         <td><h4><strong>{{post.Type}}</strong></h4></td>
-         <!-- <td><strong><div class="arrow"></div></strong></td> -->
-     </tr>
-     <tr>
-         <td colspan="10">
-             <h4><strong>{{post.Title}} - Additional Info:</strong></h4>
-             <ul>
-                 <h4><strong>Plot: {{post.Plot}}</strong></h4>
-                 <br>
-                 <h4><strong>imdb ID:&emsp; &emsp;&emsp;{{post.imdbID}}</strong></h4>
-                 <h4><strong>Writer:&emsp; &emsp;&emsp;&emsp;{{post.Writer}}</strong></h4>
-                 <h4><strong>Metascore: &emsp;{{post.Metascore}}</strong></h4>
-                 <h4><strong>Country: &emsp;&emsp;&emsp;{{post.Country}}</strong></h4>
-                 <h4><strong>Released: &emsp;&emsp;{{post.Released}}</strong></h4>
-                 <h4><strong>Rated: &emsp;&emsp;&emsp;&emsp;{{post.Rated}}</strong></h4>
-                 <h4><strong>imdb Votes: &emsp;{{post.imdbVotes}}</strong></h4>
-                </ul>
-         </td>
-     </tr>
-    {% endfor %}
-  </tbody>
-   </table>
+      <tr>
+        <th><h4><strong>Title</strong></h4></th>
+        <th><h4><strong>IMDB Rating</strong></h4></th>
+        <th><h4><strong>Genre</strong></h4></th>
+        <th><h4><strong>Year</strong></h4></th>
+        <th><h4><strong>Runtime</strong></h4></th>
+        <th><h4><strong>Actors</strong></h4></th>
+        <th><h4><strong>Awards</strong></h4></th>
+        <th><h4><strong>Director</strong></h4></th>
+        <th><h4><strong>Language</strong></h4></th>
+        <th><h4><strong>Type</strong></h4></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- if no posts then display message here instead of table below ('None') -->
+      {% for post in posts %}
+      <tr class="searchable">
+        <td><h4><strong>{{post.Title}}</strong></h4></td>
+        <td><h4><strong>{{post.imdbRating}}</strong></h4></td>
+        <td><h4><strong>{{post.Genre}}</strong></h4></td>
+        <td><h4><strong>{{post.Year}}</strong></h4></td>
+        <td><h4><strong>{{post.Runtime}}</strong></h4></td>
+        <td><h4><strong>{{post.Actors}}</strong></h4></td>
+        <td><h4><strong>{{post.Awards}}</strong></h4></td>
+        <td><h4><strong>{{post.Director}}</strong></h4></td>
+        <td><h4><strong>{{post.Language}}</strong></h4></td>
+        <td><h4><strong>{{post.Type}}</strong></h4></td>
+        <!-- <td><strong><div class="arrow"></div></strong></td> -->
+        <td><a href="/movieinfo/delete/{{post._id}}/1" class="btn btn-primary btn-xs">Delete</a></td>
+      </tr>
+      <tr>
+        <td colspan="10">
+          <h4><strong>{{post.Title}} - Additional Info:</strong></h4>
+          <ul>
+            <h4><strong>Plot: {{post.Plot}}</strong></h4>
+            <br>
+            <h4><strong>imdb ID:&emsp; &emsp;&emsp;{{post.imdbID}}</strong></h4>
+            <h4><strong>Writer:&emsp; &emsp;&emsp;&emsp;{{post.Writer}}</strong></h4>
+            <h4><strong>Metascore: &emsp;{{post.Metascore}}</strong></h4>
+            <h4><strong>Country: &emsp;&emsp;&emsp;{{post.Country}}</strong></h4>
+            <h4><strong>Released: &emsp;&emsp;{{post.Released}}</strong></h4>
+            <h4><strong>Rated: &emsp;&emsp;&emsp;&emsp;{{post.Rated}}</strong></h4>
+            <h4><strong>imdb Votes: &emsp;{{post.imdbVotes}}</strong></h4>
+          </ul>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
 </div>
 

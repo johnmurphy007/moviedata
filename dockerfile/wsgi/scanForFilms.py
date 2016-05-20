@@ -10,14 +10,13 @@ Developed on Python 2.7.10
 import os
 import re
 import sys
-#
-# import json
+
 from pymongo import MongoClient
 import requests
 import logging
 from flask import json
 from flask import Flask
-from flask import request, render_template, redirect, url_for, send_from_directory
+
 
 # Setting static_folder=None disables built-in static handler.
 app = Flask(__name__)  # static_url_path='')
@@ -37,36 +36,56 @@ else:
     host = '192.168.99.100'
 
 client = MongoClient(host, 27017)
-db = client.movies  # db = client.primer
+db = client.movies
 
 
-def searchformovies(path):
+def searchformovies(path1):
+    '''
+    Recursively search the folder location ('path1') for films that match
+    the film formats as specified in the 'config.json' file.  The config.json
+    uses a key:value pair, where:
+        key = format of movie file
+        value = if a value other than '/' is specified, then the path is
+            truncated by this value.
+            For example, VOB files typically are found in a subfolder called:
+            "VIDEO_TS".  Want to get the name of the folder that this folder
+            is contained in.  Specifying a key: value pair of
+            "VOB": "/VIDEO_TS" will remove the /VIDEO_TS from the path.
+    '''
     # avi, mov, mp4, .mkv, .vob, .ogg, .wmv, .mp2
     # if .vob: folder will be VIDEO_TS (need to filter back for this)
-    filmformats = ['.avi', '.mov', '.mp4', '.mkv', '.ogg', '.wmv', '.mp2']
-    filmformatvob = '.VOB'
-    remove = '/Volumes'
-    prepend = '/share'
+    configjson = readConfig()
+    films_to_search_for = configjson['movie_file_format']
+    filmformats = films_to_search_for.keys()
+
     result = []
-    for path, dirs, files in os.walk(path):
+    app.logger.info("Search for Movies")
+    app.logger.info(path1)
+    for path, dirs, files in os.walk(path1):
         if files:
             for indfile in files:
                 for formattype in filmformats:
-                    if re.search(formattype, indfile):
-                        naspath = prepend + path[len(remove):]
-                        result.append(naspath)
-                if re.search(filmformatvob, indfile):
-                    if path.find("VIDEO_TS"):
-                        index = path.rfind('/VIDEO_TS')
-                    else:
-                        index = path.rfind('/')
-                    naspath = prepend + path[len(remove):index]
-                    result.append(naspath)
-    scannedmovies = set(result)
+                    if indfile.endswith("."+str(formattype)):
+                        # next test is geared towards VOB files which are
+                        # in a subfolder called VIDEO_TS
+                        if path.find(films_to_search_for[formattype]):
+                            index = path.rfind(films_to_search_for[formattype])
+                        else:
+                            index = path.rfind('/')
+                        foldername = path[:index]
+                        result.append(foldername)
+    app.logger.info("Finished scanning")
+    app.logger.info(result)
+
+    scannedmovies = set(result)  # extract unique values
     return scannedmovies
 
 
 def processdir(dirname):
+    '''
+    Process the 'dirname' for the name of the film and the year of the
+    film (if it is there).  The method return the name and year of film.
+    '''
     index = dirname.rfind('/')
     dirname = dirname[index + 1:].strip()
     name = ""
@@ -93,9 +112,11 @@ def processdir(dirname):
 
 
 def getfilmdata(film, year, fullpathtomovie):
-    # Else, dealing with situation that no Movie match was found:
-    baseUrl = "http://www.omdbapi.com/"  # "?t=Frozen&y=&plot=short&r=json
-    # film = "Frozen"
+    '''
+    Get film metadata from omdbapi.com
+    '''
+    baseUrl = "http://www.omdbapi.com/"
+
     try:
         if year:
             year = str(year)
@@ -121,13 +142,13 @@ def getfilmdata(film, year, fullpathtomovie):
 
 
 def main():
-
+    # Read config.py file
     configjson = readConfig()
     path_to_search = configjson['path_to_search']
     app.logger.info(path_to_search)
 
+    # scan folders for movies.  Array/list returned and captured in 'movies'
     movies = searchformovies(path_to_search)
-    #app.logger.info(movies)
 
     movielisterror = []
     for movie in movies:
@@ -140,8 +161,8 @@ def main():
         else:
             _items = db.movies.find_one({"Title": name})
 
-#        db.movies.delete_one({"Title": name})
         if _items is None:
+            # If movie not found in MongoDB, get metdata from omdbapi:
             newfilmresult = getfilmdata(name, year, movie)
             if newfilmresult is not None:
                 movielisterror.append(newfilmresult)
