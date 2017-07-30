@@ -9,8 +9,8 @@ wsgi:
   expose:
     - "8000"
   volumes:
-    - $HOME/git/moviedata/dockerfile/wsgi/static/:/usr/src/app/static
-    - $HOME/git/moviedata/dockerfile/wsgi/:/usr/src/app/
+    - /home/pi/moviedata/dockerfile/wsgi/static/:/usr/src/app/static
+    - /home/pi/moviedata/dockerfile/wsgi/:/usr/src/app/
   #command: /usr/local/bin/gunicorn -c gunicorn.py -w 2 -b :8000 app:app
 
 nginx:
@@ -29,9 +29,10 @@ nginx:
 
 mongo:
   restart: always
-  image: mongo:3.0.4
+  #image: mongo:3.0.4
+  build: ./mongo/
   container_name: mongo_1
-  command: mongod --quiet
+  command: /opt/mongodb/bin/mongod --quiet
   ports:
     - 27017:27017/tcp
   volumes:
