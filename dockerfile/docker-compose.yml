@@ -33,9 +33,10 @@ nginx:
 
 mongo:
   restart: always
-  image: mongo:3.0.4
+  #image: mongo:3.0.4
+  build: ./mongo/
   container_name: mongo_1
-  command: mongod --quiet
+  command: /opt/mongodb/bin/mongod --quiet
   ports:
     - 27017:27017/tcp
   volumes:

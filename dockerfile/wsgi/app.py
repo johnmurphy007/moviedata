@@ -13,7 +13,21 @@ import os
 from flask import json
 from bson.objectid import ObjectId
 import ast  # to convert unicode to dict
-import scanForFilms
+#import scanForFilms
+# coding: utf-8
+import paho.mqtt.client as mqtt
+
+#mqtt info:
+def mqtt_publish(topic, payload):
+    host_mqtt = '192.168.1.71'
+    port_mqtt = 1883  # SSL/TLS = 8883
+    mqttc = mqtt.Client('python_pub')
+    mqttc.connect(host_mqtt, port_mqtt)
+    mqttc.publish(topic, payload)
+    mqttc.loop(2) #timeout = 2s
+
+    return
+
 
 app = Flask(__name__)
 
@@ -59,7 +73,12 @@ def route_getbase():
 def route_getmoviescan():
     app.logger.info('/movieinfo/scan GET url')
     # Call scanForFilms to scan/add movies to mongodB:
-    scanForFilms.main()
+    mqtt_topic = 'hello/world'
+    mqtt_payload = 'scanForFilms'
+    mqtt_publish(mqtt_topic, mqtt_payload)
+    # Insert mqtt call to trigger python call:
+    #scanForFilms.main()
+
     page = 1
     pagesize = 25
     skip = page * pagesize
@@ -365,24 +384,7 @@ def getmatch(film):
     return movielist  # str(db.users.find().pretty())
 
 
-def getlink(full_path_file_name, return_type):
 
-    path_file_name = full_path_file_name.split('/')
-
-    if len(path_file_name) > 1:
-        filename = path_file_name[len(path_file_name)-1]
-
-        path = path_file_name[0]
-        for p in range(1, len(path_file_name)-1):
-            path = path + '/' + path_file_name[p]
-    else:
-        filename = path_file_name[0]
-        path = ''
-
-    if return_type == "filename":
-        return filename
-    else:
-        return path
 
 
 
@@ -476,4 +478,23 @@ def route_postoptions():
     # posts = db.movies.find({"Genre": { $elemMatch: {"$in": genrelist}}})
     # posts = db.movies.find()
     # resultdb = db.movies.insert_one(moviejson)
-    # moviejson = db.movies.find({"Title": "Fargo"}).limit(1)
+    # moviejson = db.movies.find({"Title": "Fargo"}).limit(1)\
+
+def getlink(full_path_file_name, return_type):
+
+    path_file_name = full_path_file_name.split('/')
+
+    if len(path_file_name) > 1:
+        filename = path_file_name[len(path_file_name)-1]
+
+        path = path_file_name[0]
+        for p in range(1, len(path_file_name)-1):
+            path = path + '/' + path_file_name[p]
+    else:
+        filename = path_file_name[0]
+        path = ''
+
+    if return_type == "filename":
+        return filename
+    else:
+        return path

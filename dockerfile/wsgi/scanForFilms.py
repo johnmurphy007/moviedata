@@ -16,6 +16,18 @@ import logging
 from flask import json
 from flask import Flask
 
+import paho.mqtt.client as mqtt
+
+#mqtt info - ADD A PUBLISH MESSAGE AT END OF 'MAIN' IF PROGRAM IS SUCCESSFUL or "FAIL" if fail the try/except:
+def mqtt_publish(topic, payload):
+    host_mqtt = '192.168.1.71'
+    port_mqtt = 1883  # SSL/TLS = 8883
+    mqttc = mqtt.Client('python_pub')
+    mqttc.connect(host_mqtt, port_mqtt)
+    mqttc.publish(topic, payload)
+    mqttc.loop(2) #timeout = 2s
+
+    return
 
 # Setting static_folder=None disables built-in static handler.
 app = Flask(__name__)  # static_url_path='')
@@ -73,6 +85,7 @@ def searchformovies(path1):
 
 
 def main():
+# ADD MQTT PUBLISH TO THIS. WRAP IT ALL IN A TRY/EXCEPT...mqtt pub good if pass and mqtt pub bad if fail.
     # Read config.py file
     configjson = readConfig()
     path_to_search = configjson['path_to_search']
