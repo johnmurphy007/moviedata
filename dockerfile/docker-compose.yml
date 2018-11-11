@@ -9,8 +9,12 @@ wsgi:
   expose:
     - "8000"
   volumes:
-    - $HOME/git/moviedata/dockerfile/wsgi/static/:/usr/src/app/static
-    - $HOME/git/moviedata/dockerfile/wsgi/:/usr/src/app/
+    # - $HOME/git/moviedata/dockerfile/wsgi/static/:/usr/src/app/static
+    # - $HOME/git/moviedata/dockerfile/wsgi/:/usr/src/app/
+    # - $HOME/Documents/:/Documents/
+    - /var/git/moviedata/dockerfile/wsgi/static/:/usr/src/app/static
+    - /var/git/moviedata/dockerfile/wsgi/:/usr/src/app/
+    - /var/Documents/:/Documents/
   #command: /usr/local/bin/gunicorn -c gunicorn.py -w 2 -b :8000 app:app
 
 nginx:

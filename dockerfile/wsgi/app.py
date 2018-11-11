@@ -30,10 +30,20 @@ config_file = "config.json"
 if ('DB_PORT_27017_TCP_ADDR' in os.environ):
     host = os.environ['DB_PORT_27017_TCP_ADDR']
 else:
-    host = '192.168.99.100'
+    host = '172.17.0.1'
 
 client = MongoClient(host, 27017)
 db = client.movies  # db = client.primer
+
+def convert(input):
+    if isinstance(input, dict):
+        return dict((convert(key), convert(value)) for key, value in input.iteritems())
+    elif isinstance(input, list):
+        return [convert(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('utf-8')
+    else:
+        return input
 
 
 @app.route('/', methods=["GET"])
@@ -215,27 +225,35 @@ def route_getmovieimdb():
 
 @app.route('/movieinfo', methods=["GET"])
 def route_getexample():
-    app.logger.info('/movieinfo GET url')
-
-    url = request.values  # Get value from GET(/POST) request
+    app.logger.info('/movieinfo GET X url')
+    #url = request.values  # Get value from GET(/POST) request
+    url = request.args.get('add')
+    url = url[1:len(url)-1]
+    url = convert(url)
     app.logger.info(url)
-
+    app.logger.info(type(url))
     if 'moviename' in url:
+        app.logger.info('moviename found in url')
         posts = db.movies.find({"Title": url['moviename']}).sort(('Title'), pymongo.DESCENDING)
         found = posts.count()
         return render_template('index.html', posts=posts, found=found)
 
     if url:
-        for i in url:
-            temp = url[i]  # url[i] is unicode.
-            # Strip '[' & ']' from temp, use ast to convert unicode dict string to real dict.
-            moviejson = ast.literal_eval(temp[1:len(temp)-1])
-            app.logger.info(type(moviejson))
-            app.logger.info(moviejson)
-            posts = db.movies.insert_one(moviejson)
-            posts = db.movies.find({"Title": moviejson['Title']})
-            found = 1
-            return render_template('index.html', posts=posts, found=found)
+        moviejson = {}
+        interim = ast.literal_eval(url)
+        for item in interim:
+            moviejson[item] = interim[item]
+        #temp1 = url[0]  # url[i] is unicode
+        #app.logger.info("get json! = " + str(temp1))
+        app.logger.info(moviejson)
+        # Strip '[' & ']' from temp, use ast to convert unicode dict string to real dict.
+        #moviejson = ast.literal_eval(temp[1:len(temp)-1])
+        app.logger.info(type(moviejson))
+        app.logger.info(moviejson)
+        posts = db.movies.insert_one(moviejson)
+        posts = db.movies.find({"Title": moviejson['Title']})
+        found = 1
+        return render_template('index.html', posts=posts, found=found)
 
     posts = json.dumps({'text': '1234'})
     found = 0
@@ -332,6 +350,12 @@ def getmatch(film):
         r = requests.get(baseUrl + "?t="+film+"&y=&plot=long&r=json")
         app.logger.info(r.status_code)
         moviejson = r.json()
+        #app.logger.info(moviejson)
+        if 'Awards' in moviejson:
+            app.logger.info("Found Awards in moviejson")
+
+        del moviejson['Awards']
+        app.logger.info(moviejson)
     except requests.exceptions.RequestException as e:
         app.logger.warn(e)
         sys.exit(1)
@@ -380,7 +404,6 @@ def writeConfig(json_to_write):
 
 
 def readConfig():
-    global config_file # = "config.json"
     with open(config_file, mode='r') as out:
         input_json = json.load(out)
     out.close()
