@@ -36,7 +36,7 @@ mongo:
   #image: mongo:3.0.4
   build: ./mongo/
   container_name: mongo_1
-  command: /opt/mongodb/bin/mongod --quiet
+  command: mongod --quiet
   ports:
     - 27017:27017/tcp
   volumes:
